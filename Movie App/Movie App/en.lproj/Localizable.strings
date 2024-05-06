@@ -1,0 +1,25 @@
+/* 
+  Localizable.strings
+  Movie App
+
+  Created by Bryan Zweiacker on 07.04.2024.
+  
+*/
+// MARK: - General
+
+// Cannot connect to the API
+"generalTitleErrorNetwork" = "Internet connection";
+"generalMessageErrorNetwork" = "Unable to connect to the Internet.";
+
+// Access denied
+"generalTitleAccessDenied" = "Access denied";
+"generalMessageAccessDenied" = "Access was refused.";
+
+// JSON error decoding
+"generalTitleErrorJSON" = "JSON decoding";
+"generalMessageErrorJSON" = "Problem with data decoding.";
+
+// MARK: - Button pop-up
+
+"buttonQuit" = "Exit";
+

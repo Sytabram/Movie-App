@@ -80,11 +80,11 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
         let scrollViewFrameLayout = homeScrollView.frameLayoutGuide
         // Activate constraints for the vertical stack view
         NSLayoutConstraint.activate([
-            verticalStackView.topAnchor.constraint(equalTo: scrollViewContentLayout.topAnchor, constant: 5.0),
-            verticalStackView.leadingAnchor.constraint(equalTo: scrollViewContentLayout.leadingAnchor, constant: 5.0),
-            verticalStackView.trailingAnchor.constraint(equalTo: scrollViewContentLayout.trailingAnchor, constant: -5.0),
-            verticalStackView.bottomAnchor.constraint(equalTo: scrollViewContentLayout.bottomAnchor, constant: -5.0),
-            verticalStackView.widthAnchor.constraint(equalTo: scrollViewFrameLayout.widthAnchor, constant: -10.0),
+            verticalStackView.topAnchor.constraint(equalTo: scrollViewContentLayout.topAnchor, constant: 0),
+            verticalStackView.leadingAnchor.constraint(equalTo: scrollViewContentLayout.leadingAnchor, constant: 0),
+            verticalStackView.trailingAnchor.constraint(equalTo: scrollViewContentLayout.trailingAnchor, constant: 0),
+            verticalStackView.bottomAnchor.constraint(equalTo: scrollViewContentLayout.bottomAnchor, constant: 0),
+            verticalStackView.widthAnchor.constraint(equalTo: scrollViewFrameLayout.widthAnchor, constant: 0),
         ])
     }
 

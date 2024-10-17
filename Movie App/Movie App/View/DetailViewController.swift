@@ -57,7 +57,7 @@ class DetailViewController: UIViewController {
             // Handle failure to retrieve the background image URL by displaying a default image
             DispatchQueue.main.async {
                 self.backgroundImageView.image = APIController.sharedInstance.defaultImage
-                self.backgroundImageView.contentMode = .scaleAspectFit
+                self.backgroundImageView.contentMode = .scaleToFill
             }
         }
         self.backgroundImageView.contentMode = .scaleToFill

@@ -36,7 +36,8 @@ class DetailViewController: UIViewController {
         if let averageRating = detailShowModel?.rating?.average {
             ratingLabel.text = "\(averageRating)"
         } else {
-            ratingLabel.text = "N/A"
+            ratingLabel.isHidden = true
+            ratingImageView.isHidden = true
         }
         
         // Load the poster image from the URL

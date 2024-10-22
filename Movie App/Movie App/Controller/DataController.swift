@@ -71,7 +71,7 @@ class DataController {
         
         getImages(idString: idString) { Images in
             // Iterate through the images received
-            if self.isListEmpty(Images) {
+            if Images.isEmpty {
                 onFailure()
             } else {
                 for image in Images {
@@ -170,11 +170,6 @@ class DataController {
             // Handle authentication error case
             onErrorAuth()
         }
-    }
-    
-    // MARK: - Check if empty
-    func isListEmpty<T>(_ list: [T]) -> Bool {
-        return list.isEmpty
     }
     
     // MARK: - Remove words from string

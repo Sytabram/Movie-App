@@ -9,18 +9,12 @@ import Foundation
 
 class DataController {
     
+    static var sharedInstance = DataController()
+    
     struct Static {
         fileprivate static var instance: DataController?
     }
-    
-    class var sharedInstance: DataController
-    {
-        if Static.instance == nil
-        {
-            Static.instance = DataController()
-        }
-        return Static.instance!
-    }
+
     // Set words to remove from summary
     private let wordsToRemove = ["<p>", "</p>", "<b>", "</b>"]
     

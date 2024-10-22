@@ -10,6 +10,8 @@ import UIKit
 
 class APIController {
     
+    static var sharedInstance = APIController()
+    
     // URL from TVMaze
     private let showsURL:String = "shows/"
     private let imagesURL:String = "/images"
@@ -18,19 +20,6 @@ class APIController {
     
     // Set a default image
     let defaultImage = UIImage(systemName: "photo.on.rectangle.angled")
-    
-    struct Static {
-        fileprivate static var instance: APIController?
-    }
-    
-    class var sharedInstance: APIController
-    {
-        if Static.instance == nil
-        {
-            Static.instance = APIController()
-        }
-        return Static.instance!
-    }
     
     // MARK: - Getting Show From API
     func getShowAPI(idString:String, onSuccess: @escaping(Data) -> Void, onError: @escaping() -> Void, onErrorAuth: @escaping() -> Void)

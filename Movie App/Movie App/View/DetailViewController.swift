@@ -25,7 +25,8 @@ class DetailViewController: UIViewController {
         
         // Set the name label
         nameLabel.text = detailShowModel?.name
-        nameLabel.lineBreakMode = NSLineBreakMode.byWordWrapping
+        self.nameLabel.numberOfLines = 2
+        self.nameLabel.lineBreakMode = .byTruncatingTail
         
         // Remove specific words from the show's summary
         DataController.sharedInstance.removeWords(from: detailShowModel?.summary ?? "") { modifiedSummary in

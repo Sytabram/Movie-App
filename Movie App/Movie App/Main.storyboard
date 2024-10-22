@@ -114,10 +114,10 @@
             </objects>
             <point key="canvasLocation" x="1500" y="-647"/>
         </scene>
-        <!--Main Tab Bar View Controller-->
+        <!--Tab Bar Controller-->
         <scene sceneID="ntf-q7-OLr">
             <objects>
-                <tabBarController id="aad-eK-EB3" customClass="MainTabBarViewController" customModule="Movie_App" customModuleProvider="target" sceneMemberID="viewController">
+                <tabBarController id="aad-eK-EB3" sceneMemberID="viewController">
                     <tabBar key="tabBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="kfB-Ob-Ejo">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="49"/>
                         <autoresizingMask key="autoresizingMask"/>

@@ -22,11 +22,6 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
     var categoriesCountDict: [Int: Int] = [:]
     var categoryShowsModel: [(String, [ShowModel])] = []
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Title of controller

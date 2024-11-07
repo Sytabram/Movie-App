@@ -45,26 +45,14 @@ struct ShowModel: Codable
     struct Network: Codable {
         var id:Int?
         var name:String?
-        var country:country?
+        var country:Country?
         var officialSite:String?
-        
-        struct country: Codable {
-            var name:String?
-            var code:String?
-            var timezone:String?
-        }
     }
     struct WebChannel:Codable {
         var id:Int?
         var name:String?
         var country:Country?
         var officialSite:String?
-        
-        struct Country:Codable{
-            var name: String?
-            var code:String?
-            var timezone:String?
-        }
     }
     struct Externals:Codable{
         var tvrage: Int?
@@ -88,7 +76,10 @@ struct ShowModel: Codable
             var name:String?
         }
     }
-    
-    
+    struct Country:Codable{
+        var name: String?
+        var code:String?
+        var timezone:String?
+    }
 }
 

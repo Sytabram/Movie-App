@@ -15,6 +15,14 @@
 "generalTitleAccessDenied" = "Access denied";
 "generalMessageAccessDenied" = "Access was refused.";
 
+// Resource not found
+"generalTitleErrorNotFound" = "Not Found";
+"generalMessageErrorNotFound" = "The requested resource could not be found.";
+
+// General error
+"generalTitleErrorGlobal" = "An error occurred";
+"generalMessageErrorGlobal" = "Something went wrong. Please try again later.";
+
 // JSON error decoding
 "generalTitleErrorJSON" = "JSON decoding";
 "generalMessageErrorJSON" = "Problem with data decoding.";

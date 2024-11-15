@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -52,6 +52,10 @@
 		0FFCB8F52BB32B7C00835C30 /* PosterCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PosterCollectionViewCell.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		0FB63F702CE6338500685B63 /* Error */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Error; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
 /* Begin PBXFrameworksBuildPhase section */
 		0FFCB8D42BB3094100835C30 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
@@ -75,6 +79,7 @@
 		0FC475EC2BBB1B910037DDE8 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				0FB63F702CE6338500685B63 /* Error */,
 				0FC475EA2BBB1B850037DDE8 /* ShowModel.swift */,
 				0FAC21B52BBC696C00647C49 /* ShowCategoryModel.swift */,
 				0F291FE62BC079C20029F782 /* ImageModel.swift */,
@@ -152,6 +157,9 @@
 			buildRules = (
 			);
 			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				0FB63F702CE6338500685B63 /* Error */,
 			);
 			name = "Movie App";
 			productName = "Movie App";

@@ -19,49 +19,27 @@ class DataController {
     private let wordsToRemove = ["<p>", "</p>", "<b>", "</b>"]
     
     // MARK: - Getting Home Shows Data
-    func getCategoryShows(onSuccess: @escaping ([(String, [ShowModel])]) -> Void, onFailure: @escaping () -> Void, onErrorAuth: @escaping () -> Void, onErrorJSON: @escaping () -> Void) {
-        let dispatchGroup = DispatchGroup()
+    func getCategoryShows() async throws -> [(String, [ShowModel])] {
         var showsCategoryList: [(String, [ShowModel])] = []
-        
-        // Iterate over each category
+
         for (category, ids) in ShowCategoryModel().categoryShowsID {
-            var listOfShows: [ShowModel] = []
-            
-            // Iterate over each id in the list of the category
-            for id in ids {
-                dispatchGroup.enter()
-                
-                // Fetch show data for each id
-                self.getShow(idString: id) { showsModel in
-                    // Add each returned show to the list
-                    listOfShows.append(showsModel)
-                    dispatchGroup.leave()
-                } onFailure: {
-                    // Handle failure case
-                    onFailure()
-                    dispatchGroup.leave()
-                } onErrorAuth: {
-                    // Handle authentication error case
-                    onErrorAuth()
-                    dispatchGroup.leave()
-                } onErrorJSON: {
-                    // Handle JSON decoding error case
-                    onErrorJSON()
-                    dispatchGroup.leave()
+            var listOfShows = Array<ShowModel?>(repeating: nil, count: ids.count)
+
+            try await withThrowingTaskGroup(of: (Int, ShowModel).self) { group in
+                for (index, id) in ids.enumerated() {
+                    group.addTask {
+                        let show = try await self.getShow(idString: id)
+                        return (index, show) 
+                    }
+                }
+
+                for try await (index, show) in group {
+                    listOfShows[index] = show
                 }
             }
-            
-            // Notify when all asynchronous operations for a specific category have been completed
-            dispatchGroup.notify(queue: .main) {
-                showsCategoryList.append((category, listOfShows))
-                
-                // Check if all categories have been processed
-                if showsCategoryList.count == ShowCategoryModel().categoryShowsID.count {
-                    // Call the success callback with the collected data
-                    onSuccess(showsCategoryList)
-                }
-            }
+            showsCategoryList.append((category, listOfShows.compactMap { $0 }))
         }
+        return showsCategoryList
     }
     
     
@@ -99,25 +77,14 @@ class DataController {
     
     
     
-    // MARK: - Get and Decode Shows
-    func getShow(idString: String, onSuccess: @escaping (ShowModel) -> Void, onFailure: @escaping () -> Void, onErrorAuth: @escaping () -> Void, onErrorJSON: @escaping () -> Void) {
-        // Call the API to get the show data
-        APIController.sharedInstance.getShowAPI(idString: idString) { data in
-            do {
-                // Decode the JSON data into a ShowModel object
-                let showModel = try JSONDecoder().decode(ShowModel.self, from: data)
-                onSuccess(showModel)
-            } catch {
-                // Handle JSON decoding error
-                print("Error decoding JSON: \(error)")
-                onErrorJSON()
-            }
-        } onError: {
-            // Handle general error case
-            onFailure()
-        } onErrorAuth: {
-            // Handle authentication error case
-            onErrorAuth()
+    // MARK: - Get and Decode Show
+    func getShow(idString: String) async throws -> ShowModel {
+        let data = try await APIController.sharedInstance.getShowAPI(idString: idString)
+        do {
+            let showModel = try JSONDecoder().decode(ShowModel.self, from: data)
+            return showModel
+        } catch {
+            throw DataError.decodingError
         }
     }
     

@@ -28,7 +28,7 @@ struct ShowModel: Codable
     var weight:Int?
     var network:Network?
     var webChannel:WebChannel?
-    var dvdCountry:Double?
+    var dvdCountry:DVDCountry?
     var externals:Externals?
     var image:Image?
     var summary:String?
@@ -55,15 +55,19 @@ struct ShowModel: Codable
         var officialSite:String?
     }
     struct Externals:Codable{
-        var tvrage: Int?
+        var tvrage:Int?
         var thetvdb:Int?
         var imdb:String?
+    }
+    struct DVDCountry:Codable{
+        var name:String?
+        var code:String?
+        var timezone:String?
     }
     struct Image:Codable {
         var medium:String?
         var original:String?
     }
-    
     struct Links:Codable {
         var `self`:SelfLinks?
         var previousepisode:PreviousEpisode?

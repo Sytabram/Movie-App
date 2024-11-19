@@ -9,4 +9,6 @@ import Foundation
 
 enum DataError: Error {
     case decodingError
+    case isEmpty
+    case imageBackgroundEmpty
 }

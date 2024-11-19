@@ -44,75 +44,53 @@ class DataController {
     
     
     // MARK: - Getting Background Image
-    func getBackgroundImage(idString: String, onSuccess: @escaping (String) -> Void, onFailure: @escaping () -> Void) {
+    func getBackgroundImage(idString: String) async throws -> String {
         // Call the function to get images
+        let images = try await getImages(idString: idString)
         
-        getImages(idString: idString) { Images in
-            // Iterate through the images received
-            if Images.isEmpty {
-                onFailure()
-            } else {
-                for image in Images {
-                    if image.type == "background" {
-                        onSuccess(image.resolutions.original.url)
-                        // Break out of the loop since we found the background image
-                        break
-                    } else {
-                        onFailure()
-                    }
-                }
-            }
-            
-        } onFailure: {
-            // Handle failure case
-            onFailure()
-        } onErrorAuth: {
-            // Handle authentication error case
-            onFailure()
-        } onErrorJSON: {
-            // Handle JSON error case
-            onFailure()
+        // Check if the array is empty
+        guard !images.isEmpty else {
+            throw DataError.isEmpty
         }
+        
+        // Find the first image with type "background"
+        if let backgroundImage = images.first(where: { $0.type == "background" }) {
+            return backgroundImage.resolutions.original.url
+        }
+        
+        // Throw an error if no background image was found
+        throw DataError.imageBackgroundEmpty
     }
     
     
     
     // MARK: - Get and Decode Show
     func getShow(idString: String) async throws -> ShowModel {
+        // Call the API to get the show data
         let data = try await APIController.sharedInstance.getShowAPI(idString: idString)
         do {
+            // Decode the JSON data into a ShowModel object
             let showModel = try JSONDecoder().decode(ShowModel.self, from: data)
             return showModel
         } catch {
+            // Handle JSON decoding error
             throw DataError.decodingError
         }
     }
     
     // MARK: - Get and Decode Images
-    func getImages(idString:String,onSuccess:@escaping ([ImageModel]) -> Void, onFailure:@escaping () -> Void, onErrorAuth:@escaping () -> Void, onErrorJSON:@escaping () -> Void)
+    func getImages(idString:String) async throws -> [ImageModel]
     {
         // Call the API to get the images data
-        APIController.sharedInstance.getImagesAPI(idString: idString) { data in
-            do {
-                // Decode the JSON data into a ImageModel object
-                let imageModel = try JSONDecoder().decode([ImageModel].self, from: data)
-                onSuccess(imageModel)
-            }
-            catch
-            {
-                // Handle JSON decoding error
-                print("Error decoding JSON: \(error)")
-                onErrorJSON()
-            }
-            
-        } onError: {
-            // Handle general error case
-            onFailure()
-        } onErrorAuth: {
-            // Handle authentication error case
-            onErrorAuth()
+        let data = try await APIController.sharedInstance.getImagesAPI(idString: idString)
+        do {
+            // Decode the JSON data into a ImageModel object
+            let imageModel = try JSONDecoder().decode([ImageModel].self, from: data)
+            return imageModel
+        } catch {
+            // Handle JSON decoding error
+            throw DataError.decodingError
         }
-        
     }
     
     // MARK: - Get and Decode Search

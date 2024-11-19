@@ -47,21 +47,24 @@ class DetailViewController: UIViewController {
                 self.posterImageView.image = image
             }
         }
-        
-        // Load the background image URL
-        DataController.sharedInstance.getBackgroundImage(idString: String(detailShowModel!.id)) { backgroundURLString in
-            APIController.sharedInstance.loadImage(from: backgroundURLString) { image in
+        Task {
+            do {
+                // Load the background image URL
+                let backgroundURLString = try await DataController.sharedInstance.getBackgroundImage(idString: String(detailShowModel!.id))
+                APIController.sharedInstance.loadImage(from: backgroundURLString) { image in
+                    DispatchQueue.main.async {
+                        self.backgroundImageView.image = image
+                    }
+                }
+            } catch {
+                // Handle failure to retrieve the background image URL by displaying a default image
                 DispatchQueue.main.async {
-                    self.backgroundImageView.image = image
+                    self.backgroundImageView.image = APIController.sharedInstance.defaultImage
+                    self.backgroundImageView.contentMode = .scaleToFill
                 }
             }
-        } onFailure: {
-            // Handle failure to retrieve the background image URL by displaying a default image
-            DispatchQueue.main.async {
-                self.backgroundImageView.image = APIController.sharedInstance.defaultImage
-                self.backgroundImageView.contentMode = .scaleToFill
-            }
         }
+        
         self.backgroundImageView.contentMode = .scaleToFill
         
         // Set the z-position of the poster image view and name label to ensure they are above the background image view

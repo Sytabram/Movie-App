@@ -57,21 +57,24 @@ class SearchViewController: UIViewController, UISearchResultsUpdating {
         guard let text = searchController.searchBar.text else { return }
         
         if let searchResultsController = searchController.searchResultsController as? SearchResultsViewController {
-            DataController.sharedInstance.getSearch(searchString: text) { SearchedShows in
-                searchResultsController.searchResults = SearchedShows
-                // Reload table view data on the main thread
-                DispatchQueue.main.async {
-                    searchResultsController.tableView.reloadData()
+            Task {
+                do {
+                    let searchedShows = try await DataController.sharedInstance.getSearch(searchString: text)
+                    searchResultsController.searchResults = searchedShows
+                    // Reload table view data on the main thread
+                    DispatchQueue.main.async {
+                        searchResultsController.tableView.reloadData()
+                    }
+                } catch APIError.networkError{
+                    // Alert when there is no internet connection
+                    self.generateAlert(titleString: NSLocalizedString("generalTitleErrorNetwork", comment: ""), messageString: NSLocalizedString("generalMessageErrorNetwork", comment: ""))
+                } catch APIError.unauthorized{
+                    // Alert when access is denied
+                    self.generateAlert(titleString: NSLocalizedString("generalTitleAccessDenied", comment: ""), messageString: NSLocalizedString("generalMessageAccessDenied", comment: ""))
+                } catch DataError.decodingError{
+                    // Alert when there is a problem with decoding the JSON
+                    self.generateAlert(titleString: NSLocalizedString("generalTitleErrorJSON", comment: ""), messageString: NSLocalizedString("generalMessageErrorJSON", comment: ""))
                 }
-            } onFailure: {
-                // Alert when there is no internet connection
-                self.generateAlert(titleString: NSLocalizedString("generalTitleErrorNetwork", comment: ""), messageString: NSLocalizedString("generalMessageErrorNetwork", comment: ""))
-            } onErrorAuth: {
-                // Alert when access is denied
-                self.generateAlert(titleString: NSLocalizedString("generalTitleAccessDenied", comment: ""), messageString: NSLocalizedString("generalMessageAccessDenied", comment: ""))
-            } onErrorJSON: {
-                // Alert when there is a problem with decoding the JSON
-                self.generateAlert(titleString: NSLocalizedString("generalTitleErrorJSON", comment: ""), messageString: NSLocalizedString("generalMessageErrorJSON", comment: ""))
             }
         }
     }

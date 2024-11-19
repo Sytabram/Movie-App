@@ -98,29 +98,43 @@ class APIController {
         }
     }
     // MARK: - Getting Search From API
-    func getSearchAPI(searchString:String, onSuccess: @escaping(Data) -> Void, onError: @escaping() -> Void, onErrorAuth: @escaping() -> Void)
+    func getSearchAPI(searchString:String) async throws -> Data
     {
-        let url : String =  baseURL + searchShowsURL + searchString
-        let request : NSMutableURLRequest = NSMutableURLRequest(url: NSURL(string: url)! as URL)
-        request.httpMethod = "GET"
-        let task = URLSession.shared.dataTask(with: request as URLRequest) { data, response, error in
-        guard let _ = data,
-                let response = response as? HTTPURLResponse,
-                error == nil else {   // check for fundamental networking error
-                onError()
-                return
-            }
-            if (403 == response.statusCode || 401 == response.statusCode) {   // check Authorized
-                onErrorAuth()
-                return
-            }
-            guard (200 ... 299) ~= response.statusCode else {   // check for http errors
-                onError()
-                return
-            }
-            onSuccess(data!)
+        guard let url = URL(string: baseURL + searchShowsURL + searchString) else {
+            print("Error: Invalid URL")
+            throw APIError.invalidURL
         }
-        task.resume()
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw APIError.requestFailed
+            }
+            
+            switch httpResponse.statusCode {
+            case 200...299:
+                return data
+            case 401, 403:
+                print("Error: Unauthorized or Forbidden")
+                throw APIError.unauthorized
+            case 404:
+                print("Error: Not Found")
+                throw APIError.notFound
+            default:
+                print("Error: \(httpResponse.statusCode)")
+                throw APIError.requestFailed
+            }
+            
+        } catch let error as APIError {
+            throw error
+        } catch {
+            print("Network error: \(error)")
+            throw APIError.networkError
+        }
     }
     
     // MARK: - Load Image

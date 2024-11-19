@@ -94,26 +94,18 @@ class DataController {
     }
     
     // MARK: - Get and Decode Search
-    func getSearch(searchString:String, onSuccess: @escaping ([SearchShowModel]) -> Void, onFailure: @escaping () -> Void,onErrorAuth:@escaping () -> Void, onErrorJSON:@escaping () -> Void) {
+    func getSearch(searchString:String) async throws -> [SearchShowModel]
+    {
         // Call the API to get the search data
-        APIController.sharedInstance.getSearchAPI(searchString: searchString) { data in
-            do {
-                // Decode the JSON data into a SearchShowModel object
-                let searchShowModel = try JSONDecoder().decode([SearchShowModel].self, from: data)
-                onSuccess(searchShowModel)
-            }
-            catch
-            {
-                // Handle JSON decoding error
-                print("Error decoding JSON: \(error)")
-                onErrorJSON()
-            }
-        } onError: {
-            // Handle general error case
-            onFailure()
-        } onErrorAuth: {
-            // Handle authentication error case
-            onErrorAuth()
+        let data = try await APIController.sharedInstance.getSearchAPI(searchString: searchString)
+        do {
+            // Decode the JSON data into a SearchShowModel object
+            let searchShowModel = try JSONDecoder().decode([SearchShowModel].self, from: data)
+            return searchShowModel
+        } catch {
+            // Handle JSON decoding error
+            print("Error decoding JSON: \(error)")
+            throw DataError.decodingError
         }
     }
     

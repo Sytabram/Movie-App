@@ -151,15 +151,17 @@ class HomeViewController: UIViewController, UICollectionViewDelegate, UICollecti
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "posterCell", for: indexPath) as! PosterCollectionViewCell
         cell.posterImageView.image = nil
-            // Load image asynchronously
         if let imageURLString = self.categoryShowsModel[collectionView.tag].1[indexPath.row].image?.original {
-            APIController.sharedInstance.loadImage(from: imageURLString) { image in
+            Task {
+                do {
+                    let image = await APIController.sharedInstance.loadImage(from: imageURLString)
                     DispatchQueue.main.async {
                         // Update the cell image with the loaded image
                         cell.posterImageView.image = image
                     }
                 }
             }
+        }
         cell.posterNameLabel.text = self.categoryShowsModel[collectionView.tag].1[indexPath.row].name
         return cell
     }

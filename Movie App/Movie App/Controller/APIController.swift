@@ -138,37 +138,35 @@ class APIController {
     }
     
     // MARK: - Load Image
-    func loadImage(from urlString: String?, completion: @escaping (UIImage) -> Void) {
-        // Convert the URL string to URL
-        DispatchQueue.main.async {
-            if urlString != nil {
-                guard let url = URL(string: urlString!) else {
-                    // If the URL is invalid, return a default image and exit the function
-                    completion(self.defaultImage!)
-                    return
-                }
-                // Perform a URLSession task to download the image from the URL
-                URLSession.shared.dataTask(with: url) { data, response, error in
-                    if let error = error {
-                        // In case of error, print a debug message, return a default image, and exit the function
-                        print("Image loading error : \(error)")
-                        completion(self.defaultImage!)
-                        return
-                    }
-                    // Check if data was returned and an image can be created from that data
-                    if let data = data, let image = UIImage(data: data) {
-                        // If the image was successfully downloaded, pass it to the completion closure
-                        completion(image)
-                    } else {
-                        // If the data is nil or the image cannot be created, return a default image
-                        completion(self.defaultImage!)
-                    }
-                }.resume() // Launch the URLSession task to start downloading the image
-            } else {
-                completion(self.defaultImage!)
-            }
+    func loadImage(from urlString: String?) async -> UIImage {
+        // Check that the URL is valid
+        guard let urlString = urlString, let url = URL(string: urlString) else {
+            return self.defaultImage ?? UIImage()
         }
-        
-    }
 
+        // Check if the image is already cached
+        if let cachedImage = ImageCache.sharedInstance.getImage(forKey: urlString) {
+            return cachedImage
+        }
+
+        do {
+            // Download data via URLSession
+            let (data, _) = try await URLSession.shared.data(from: url)
+
+            // Creating an image from downloaded data
+            if let image = UIImage(data: data) {
+                // Save to cache
+                ImageCache.sharedInstance.saveImage(image, forKey: urlString)
+                return image
+            } else {
+                // Return a default image if the data is invalid
+                return self.defaultImage ?? UIImage()
+            }
+        } catch {
+            // Log the error and return a default image
+            print("Image loading error: \(error)")
+            return self.defaultImage ?? UIImage()
+        }
+    }
 }
+

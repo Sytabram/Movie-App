@@ -54,6 +54,7 @@
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		0FB63F702CE6338500685B63 /* Error */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Error; sourceTree = "<group>"; };
+		0FBB54AC2CFA0F9C0050E6C1 /* Utilities */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Utilities; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -107,6 +108,7 @@
 		0FFCB8D92BB3094100835C30 /* Movie App */ = {
 			isa = PBXGroup;
 			children = (
+				0FBB54AC2CFA0F9C0050E6C1 /* Utilities */,
 				0FC475EC2BBB1B910037DDE8 /* Model */,
 				0FC475E52BBB0D2C0037DDE8 /* Controller */,
 				0FFCB8EE2BB30C0E00835C30 /* View */,
@@ -160,6 +162,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				0FB63F702CE6338500685B63 /* Error */,
+				0FBB54AC2CFA0F9C0050E6C1 /* Utilities */,
 			);
 			name = "Movie App";
 			productName = "Movie App";

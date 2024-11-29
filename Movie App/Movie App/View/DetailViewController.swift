@@ -41,21 +41,21 @@ class DetailViewController: UIViewController {
             ratingImageView.isHidden = true
         }
         
-        // Load the poster image from the URL
-        APIController.sharedInstance.loadImage(from: detailShowModel?.image?.original) { image in
-            DispatchQueue.main.async {
-                self.posterImageView.image = image
-            }
-        }
+        
         Task {
             do {
+                // Load the poster image from the URL
+                let image = await APIController.sharedInstance.loadImage(from: detailShowModel?.image?.medium)
+                DispatchQueue.main.async {
+                    self.posterImageView.image = image
+                }
                 // Load the background image URL
                 let backgroundURLString = try await DataController.sharedInstance.getBackgroundImage(idString: String(detailShowModel!.id))
-                APIController.sharedInstance.loadImage(from: backgroundURLString) { image in
-                    DispatchQueue.main.async {
-                        self.backgroundImageView.image = image
-                    }
+                let imageBackground = await APIController.sharedInstance.loadImage(from: backgroundURLString)
+                DispatchQueue.main.async {
+                    self.backgroundImageView.image = imageBackground
                 }
+                
             } catch {
                 // Handle failure to retrieve the background image URL by displaying a default image
                 DispatchQueue.main.async {

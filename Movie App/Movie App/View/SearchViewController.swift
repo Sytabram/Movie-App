@@ -7,34 +7,41 @@
 
 import UIKit
 
+import UIKit
+
 class SearchResultsViewController: UITableViewController {
     
-    var searchResults: [SearchShowModel] = []
+    typealias DataSource = UITableViewDiffableDataSource<Int, ItemShowModel>
+    typealias Snapshot = NSDiffableDataSourceSnapshot<Int, ItemShowModel>
+    
+    private lazy var dataSource: DataSource = {
+        return DataSource(tableView: tableView) { tableView, indexPath, searchShowModel in
+            let cell = tableView.dequeueReusableCell(withIdentifier: "ResultCell", for: indexPath) as! ResultTableViewCell
+            cell.textLabel?.text = searchShowModel.name
+            return cell
+        }
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Register cell nib
-        self.tableView.register(UINib(nibName: "ResultTableViewCell", bundle: nil), forCellReuseIdentifier: "ResultCell")
+        tableView.register(UINib(nibName: "ResultTableViewCell", bundle: nil), forCellReuseIdentifier: "ResultCell")
+        tableView.dataSource = dataSource
     }
     
-    // MARK: - TableView number of rows
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return searchResults.count
-    }
-    
-    // MARK: - TableView cell
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "ResultCell", for: indexPath) as! ResultTableViewCell
-        cell.textLabel?.text = searchResults[indexPath.row].show.name ?? ""
-        return cell
+    // MARK: - Updating Results
+    func updateResults(with results: [SearchShowModel]) {
+        let items = results.map { ItemShowModel(from: $0.show) }
+        var snapshot = Snapshot()
+        snapshot.appendSections([0])
+        snapshot.appendItems(items)
+        dataSource.apply(snapshot, animatingDifferences: false)
     }
     
     // MARK: - TableView select item
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let selectedResult = searchResults[indexPath.row]
-        // Instantiate and present detail view controller
-        let detailViewController = UIStoryboard.init(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "DetailViewController") as! DetailViewController
-        detailViewController.detailShowModel = selectedResult.show
+        guard let selectedResult = dataSource.itemIdentifier(for: indexPath) else { return }
+        let detailViewController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "DetailViewController") as! DetailViewController
+        detailViewController.detailShowModel = selectedResult
         present(detailViewController, animated: true, completion: nil)
     }
 }
@@ -45,42 +52,31 @@ class SearchViewController: UIViewController, UISearchResultsUpdating {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Set controller title
         title = "Search"
         searchController.searchResultsUpdater = self
         navigationItem.searchController = searchController
     }
     
     // MARK: - Update Search Results
-    
     func updateSearchResults(for searchController: UISearchController) {
-        guard let text = searchController.searchBar.text else { return }
-        
-        if let searchResultsController = searchController.searchResultsController as? SearchResultsViewController {
-            Task {
-                do {
-                    let searchedShows = try await DataController.sharedInstance.getSearch(searchString: text)
-                    searchResultsController.searchResults = searchedShows
-                    // Reload table view data on the main thread
-                    DispatchQueue.main.async {
-                        searchResultsController.tableView.reloadData()
-                    }
-                } catch APIError.networkError{
-                    // Alert when there is no internet connection
-                    self.generateAlert(titleString: NSLocalizedString("generalTitleErrorNetwork", comment: ""), messageString: NSLocalizedString("generalMessageErrorNetwork", comment: ""))
-                } catch APIError.unauthorized{
-                    // Alert when access is denied
-                    self.generateAlert(titleString: NSLocalizedString("generalTitleAccessDenied", comment: ""), messageString: NSLocalizedString("generalMessageAccessDenied", comment: ""))
-                } catch DataError.decodingError{
-                    // Alert when there is a problem with decoding the JSON
-                    self.generateAlert(titleString: NSLocalizedString("generalTitleErrorJSON", comment: ""), messageString: NSLocalizedString("generalMessageErrorJSON", comment: ""))
+        guard let text = searchController.searchBar.text, !text.isEmpty, let searchResultsController = searchController.searchResultsController as? SearchResultsViewController else { return }
+        Task {
+            do {
+                let searchedShows = try await DataController.sharedInstance.getSearch(searchString: text)
+                DispatchQueue.main.async {
+                    searchResultsController.updateResults(with: searchedShows)
                 }
+            } catch APIError.networkError {
+                self.generateAlert(titleString: NSLocalizedString("generalTitleErrorNetwork", comment: ""), messageString: NSLocalizedString("generalMessageErrorNetwork", comment: ""))
+            } catch APIError.unauthorized {
+                self.generateAlert(titleString: NSLocalizedString("generalTitleAccessDenied", comment: ""), messageString: NSLocalizedString("generalMessageAccessDenied", comment: ""))
+            } catch DataError.decodingError {
+                self.generateAlert(titleString: NSLocalizedString("generalTitleErrorJSON", comment: ""), messageString: NSLocalizedString("generalMessageErrorJSON", comment: ""))
             }
         }
     }
-    
+
     // MARK: - Generate Alert
-    
     func generateAlert(titleString: String, messageString: String) {
         DispatchQueue.main.async {
             let alertController = UIAlertController(title: titleString, message: messageString, preferredStyle: .alert)

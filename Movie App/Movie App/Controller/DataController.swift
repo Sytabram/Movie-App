@@ -20,27 +20,29 @@ class DataController {
     
     // MARK: - Getting Home Shows Data
     func getCategoryShows() async throws -> [(String, [ShowModel])] {
-        var showsCategoryList: [(String, [ShowModel])] = []
-
-        for (category, ids) in ShowCategoryModel().categoryShowsID {
-            var listOfShows = Array<ShowModel?>(repeating: nil, count: ids.count)
-
+        var orderedCategories: [(String, [ShowModel])] = []
+        
+        for category in mockShowCategoryModels {
+            var orderedShows = Array<ShowModel?>(repeating: nil, count: category.showsID.count)
+            
             try await withThrowingTaskGroup(of: (Int, ShowModel).self) { group in
-                for (index, id) in ids.enumerated() {
+                for (index, id) in category.showsID.enumerated() {
                     group.addTask {
                         let show = try await self.getShow(idString: id)
-                        return (index, show) 
+                        return (index, show)
                     }
                 }
-
+                
                 for try await (index, show) in group {
-                    listOfShows[index] = show
+                    orderedShows[index] = show
                 }
             }
-            showsCategoryList.append((category, listOfShows.compactMap { $0 }))
+            orderedCategories.append((category.name, orderedShows.compactMap { $0 }))
         }
-        return showsCategoryList
+        
+        return orderedCategories
     }
+
     
     
     // MARK: - Getting Background Image

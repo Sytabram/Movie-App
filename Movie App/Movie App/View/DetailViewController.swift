@@ -9,7 +9,7 @@ import UIKit
 
 class DetailViewController: UIViewController {
     
-    var detailShowModel: ShowModel?
+    var detailShowModel: ItemShowModel?
     @IBOutlet weak var backgroundImageView: UIImageView!
     @IBOutlet weak var posterImageView: UIImageView!
     @IBOutlet weak var ratingImageView: UIImageView!
@@ -33,8 +33,8 @@ class DetailViewController: UIViewController {
             self.descriptionTextView.text = modifiedSummary
         }
         
-        // Set the rating label text to the show's average rating if available, otherwise set it to "N/A"
-        if let averageRating = detailShowModel?.rating?.average {
+        // Set the rating label text to the show's average rating if available
+        if let averageRating = detailShowModel?.rating {
             ratingLabel.text = "\(averageRating)"
         } else {
             ratingLabel.isHidden = true
@@ -45,7 +45,7 @@ class DetailViewController: UIViewController {
         Task {
             do {
                 // Load the poster image from the URL
-                let image = await APIController.sharedInstance.loadImage(from: detailShowModel?.image?.medium)
+                let image = await APIController.sharedInstance.loadImage(from: detailShowModel?.imageUrl)
                 DispatchQueue.main.async {
                     self.posterImageView.image = image
                 }

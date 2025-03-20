@@ -9,6 +9,8 @@ import UIKit
 
 class PosterCollectionViewCell: UICollectionViewCell {
 
+    static let reuseIdentifier = "PosterCollectionViewCell"
+
     @IBOutlet weak var posterImageView: UIImageView!
     @IBOutlet weak var posterNameLabel: UILabel!
     
@@ -20,5 +22,18 @@ class PosterCollectionViewCell: UICollectionViewCell {
 
     }
 
-
+    func configureCell(_ show: ItemShowModel) {
+        posterNameLabel.text = show.name
+        if let imageURLString = show.imageUrl {
+            Task {
+                do {
+                    let image = await APIController.sharedInstance.loadImage(from: imageURLString)
+                    DispatchQueue.main.async {
+                        // Update the cell image with the loaded image
+                        self.posterImageView.image = image
+                    }
+                }
+            }
+        }
+    }
 }

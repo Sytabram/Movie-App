@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="aad-eK-EB3">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23727" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="aad-eK-EB3">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23506"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -17,7 +17,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="yDo-4K-5y2">
-                                <rect key="frame" x="0.0" y="155" width="393" height="614"/>
+                                <rect key="frame" x="0.0" y="214" width="393" height="521"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="TtT-ci-ztj">
                                     <size key="itemSize" width="128" height="128"/>
@@ -76,7 +76,7 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="3uf-Qa-xIs">
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="3uf-Qa-xIs">
                                 <rect key="frame" x="0.0" y="470" width="393" height="250"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <constraints>
@@ -100,6 +100,14 @@
                                     <constraint firstAttribute="height" constant="30" id="mSR-RS-xDW"/>
                                 </constraints>
                             </imageView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5iF-rX-ghx">
+                                <rect key="frame" x="328" y="257" width="49" height="35"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="tinted" image="plus.app" catalog="system"/>
+                                <connections>
+                                    <action selector="addToWatchlist:" destination="cvj-Rt-HzW" eventType="touchUpInside" id="9R1-7W-RoL"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="E0d-KH-G6q"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
@@ -110,7 +118,9 @@
                             <constraint firstItem="mvF-C1-siU" firstAttribute="top" secondItem="lrl-ug-ajH" secondAttribute="bottom" constant="5" id="DS2-ai-Y2J"/>
                             <constraint firstItem="E0d-KH-G6q" firstAttribute="trailing" secondItem="3uf-Qa-xIs" secondAttribute="trailing" id="ECo-Ke-lBm"/>
                             <constraint firstItem="0LZ-aL-ORR" firstAttribute="leading" secondItem="E0d-KH-G6q" secondAttribute="leading" constant="20" id="HL8-FE-pSy"/>
+                            <constraint firstItem="5iF-rX-ghx" firstAttribute="top" secondItem="APP-fo-vdW" secondAttribute="bottom" constant="7" id="I37-mj-wNW"/>
                             <constraint firstItem="0LZ-aL-ORR" firstAttribute="top" secondItem="APP-fo-vdW" secondAttribute="bottom" constant="-50" id="Nhe-7D-lvW"/>
+                            <constraint firstItem="E0d-KH-G6q" firstAttribute="trailing" secondItem="5iF-rX-ghx" secondAttribute="trailing" constant="16" id="Wv8-Ng-I07"/>
                             <constraint firstItem="u2p-RQ-byi" firstAttribute="leading" secondItem="mvF-C1-siU" secondAttribute="trailing" id="XT1-uk-NTt"/>
                             <constraint firstItem="lrl-ug-ajH" firstAttribute="leading" secondItem="0LZ-aL-ORR" secondAttribute="trailing" constant="10" id="cbK-27-YSU"/>
                             <constraint firstItem="lrl-ug-ajH" firstAttribute="top" secondItem="APP-fo-vdW" secondAttribute="bottom" constant="50" id="fNo-tq-obJ"/>
@@ -120,10 +130,12 @@
                             <constraint firstItem="u2p-RQ-byi" firstAttribute="top" secondItem="lrl-ug-ajH" secondAttribute="bottom" constant="10" id="pNX-rz-GSk"/>
                             <constraint firstItem="E0d-KH-G6q" firstAttribute="trailing" secondItem="APP-fo-vdW" secondAttribute="trailing" id="pdu-Ju-Lve"/>
                             <constraint firstItem="mvF-C1-siU" firstAttribute="leading" secondItem="0LZ-aL-ORR" secondAttribute="trailing" constant="10" id="rLc-HM-cMT"/>
+                            <constraint firstItem="lrl-ug-ajH" firstAttribute="top" secondItem="5iF-rX-ghx" secondAttribute="bottom" constant="8" id="yWi-6Q-Y4V"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="7jt-4t-i0W"/>
                     <connections>
+                        <outlet property="addButton" destination="5iF-rX-ghx" id="9RX-Gf-qpt"/>
                         <outlet property="backgroundImageView" destination="APP-fo-vdW" id="aSO-ds-gmz"/>
                         <outlet property="descriptionTextView" destination="3uf-Qa-xIs" id="snT-Sb-e7x"/>
                         <outlet property="nameLabel" destination="lrl-ug-ajH" id="SOJ-AH-efW"/>
@@ -177,7 +189,7 @@
                     <tabBarItem key="tabBarItem" title="Home" image="house.fill" catalog="system" id="d7R-WG-oZp"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" largeTitles="YES" id="q03-pT-hHa">
-                        <rect key="frame" x="0.0" y="59" width="393" height="96"/>
+                        <rect key="frame" x="0.0" y="118" width="393" height="96"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
@@ -196,7 +208,7 @@
                     <tabBarItem key="tabBarItem" title="Search" image="magnifyingglass" catalog="system" id="xrH-en-DUF"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" largeTitles="YES" id="5We-V9-f4q">
-                        <rect key="frame" x="0.0" y="59" width="393" height="96"/>
+                        <rect key="frame" x="0.0" y="118" width="393" height="96"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
@@ -212,6 +224,7 @@
     <resources>
         <image name="house.fill" catalog="system" width="128" height="104"/>
         <image name="magnifyingglass" catalog="system" width="128" height="117"/>
+        <image name="plus.app" catalog="system" width="128" height="114"/>
         <systemColor name="labelColor">
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

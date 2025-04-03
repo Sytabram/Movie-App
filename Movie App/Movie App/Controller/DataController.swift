@@ -11,6 +11,8 @@ class DataController {
     
     static var sharedInstance = DataController()
     
+    var watchlistedShows: ShowCategoryModel = ShowCategoryModel(name: "Watchlist", showsID: [])
+    
     struct Static {
         fileprivate static var instance: DataController?
     }
@@ -120,5 +122,14 @@ class DataController {
                 completion(sentence)
             }
         }
+    }
+    
+    func updateWatchlist(showID: String) {
+        if watchlistedShows.showsID.contains(showID) {
+            watchlistedShows.showsID.removeAll { $0 == showID}
+        } else {
+            watchlistedShows.showsID.append(showID)
+        }
+        print(watchlistedShows.showsID)
     }
 }

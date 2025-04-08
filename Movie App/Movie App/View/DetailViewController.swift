@@ -80,10 +80,10 @@ class DetailViewController: UIViewController {
         DataController.sharedInstance.updateWatchlist(showID: showsIDString)
         if DataController.sharedInstance.watchlistedShows.showsID.contains((showsIDString)) {
             addButton.setImage(UIImage(systemName: "checkmark.square.fill"), for: UIControl.State.normal)
+            showAnimatedCheckmarkToast()
         } else {
             addButton.setImage(UIImage(systemName: "plus.app"), for: UIControl.State.normal)
         }
-        showAnimatedCheckmarkToast()
     }
 }
 

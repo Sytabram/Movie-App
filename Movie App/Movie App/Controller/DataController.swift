@@ -131,5 +131,19 @@ class DataController {
             watchlistedShows.showsID.append(showID)
         }
         print(watchlistedShows.showsID)
+        saveWatchlist(items: watchlistedShows)
+    }
+    
+    func saveWatchlist(items: ShowCategoryModel) {
+        if let encoded = try? JSONEncoder().encode(items) {
+            UserDefaults.standard.set(encoded, forKey: "savedWatchlist")
+        }
+    }
+    
+    func loadWatchlist() {
+        if let savedData = UserDefaults.standard.data(forKey: "savedWatchlist"),
+           let decodedItems = try? JSONDecoder().decode(ShowCategoryModel.self, from: savedData) {
+            watchlistedShows = decodedItems
+        }
     }
 }

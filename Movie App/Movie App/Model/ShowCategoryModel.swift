@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct ShowCategoryModel
+struct ShowCategoryModel: Codable
 {
     var name: String
     var showsID: [String]

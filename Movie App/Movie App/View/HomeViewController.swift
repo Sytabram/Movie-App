@@ -24,7 +24,14 @@ class HomeViewController: UIViewController{
         homeCollectionView.register(SectionHeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "SectionHeaderView")
         homeCollectionView.collectionViewLayout = createLayout()
         configureDataSource(for: homeCollectionView)
-        
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+            super.viewDidAppear(animated)
+            fetchData()
+    }
+    
+    private func fetchData() {
         Task {
             do {
                 self.applySnapshot(with: try await DataController.sharedInstance.getCategoryShows())
@@ -114,19 +121,33 @@ class HomeViewController: UIViewController{
     }
     // MARK: - Apply Snapshot
     func applySnapshot(with data: [(String, [ShowModel])]) {
-        var snapshot = NSDiffableDataSourceSnapshot<Section, ItemShowModel>()
+        // Creating a new snapshot
+        var newSnapshot = NSDiffableDataSourceSnapshot<Section, ItemShowModel>()
         
         for (categoryName, shows) in data {
             let section = Section.category(categoryName)
-            snapshot.appendSections([section])
+            newSnapshot.appendSections([section])
             
             let items = shows.map { ItemShowModel(from: $0) }
-            snapshot.appendItems(items, toSection: section)
-        }
-        DispatchQueue.main.async {
-            self.dataSource.apply(snapshot, animatingDifferences: true)
+            newSnapshot.appendItems(items, toSection: section)
         }
         
+        // Compare whether the data is identical to the current state
+        let currentSnapshot = dataSource.snapshot()
+        let areSnapshotsIdentical = currentSnapshot.sectionIdentifiers == newSnapshot.sectionIdentifiers &&
+                                   currentSnapshot.itemIdentifiers == newSnapshot.itemIdentifiers
+        
+        // If the data is identical, avoid unnecessary updating
+        guard !areSnapshotsIdentical else { return }
+        
+        // Apply with controlled animation
+        DispatchQueue.main.async {
+            let animationOptions: UIView.AnimationOptions = [.transitionCrossDissolve, .allowUserInteraction]
+            
+            UIView.transition(with: self.homeCollectionView, duration: 0.3, options: animationOptions) {
+                self.dataSource.apply(newSnapshot, animatingDifferences: false)
+            }
+        }
     }
 }
 // MARK: - Extension : Did Select Item

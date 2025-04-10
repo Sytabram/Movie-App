@@ -24,7 +24,13 @@ class DataController {
     func getCategoryShows() async throws -> [(String, [ShowModel])] {
         var orderedCategories: [(String, [ShowModel])] = []
         
-        for category in mockShowCategoryModels {
+        var categoryModels = mockShowCategoryModels
+        
+        if watchlistedShows.showsID.count > 0 {
+            categoryModels.insert(watchlistedShows, at: 0)
+        }
+        
+        for category in categoryModels {
             var orderedShows = Array<ShowModel?>(repeating: nil, count: category.showsID.count)
             
             try await withThrowingTaskGroup(of: (Int, ShowModel).self) { group in

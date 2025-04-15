@@ -29,5 +29,25 @@
 
 // MARK: - Button pop-up
 
+// Exit Button
 "buttonQuit" = "Exit";
 
+//Mark: - Category name
+
+// Watchlist
+"categoryWatchlist" = "Watchlist";
+
+// Recommended
+"categoryRecommended" = "Recommended";
+
+// Popular
+"categoryPopular" = "Popular";
+
+// Horror
+"categoryHorror" = "Horror";
+
+// Crime
+"categoryCrime" = "Crime";
+
+// Documentary
+"categoryDocumentary" = "Documentary";

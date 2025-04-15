@@ -11,7 +11,7 @@ class DataController {
     
     static var sharedInstance = DataController()
     
-    var watchlistedShows: ShowCategoryModel = ShowCategoryModel(name: "Watchlist", showsID: [])
+    var watchlistedShows: ShowCategoryModel = ShowCategoryModel(name: NSLocalizedString("categoryWatchlist", comment: ""), showsID: [])
     
     struct Static {
         fileprivate static var instance: DataController?

@@ -14,10 +14,10 @@ struct ShowCategoryModel: Codable
 }
 
 let mockShowCategoryModels: [ShowCategoryModel] = [
-    ShowCategoryModel(name: "Recommended", showsID: ["53647", "41074", "60", "38963", "30", "31683"]),
-    ShowCategoryModel(name: "Popular", showsID: ["169", "7103", "38963", "53647"]),
-    ShowCategoryModel(name: "Horror", showsID: ["53647", "1791", "30", "31683"]),
-    ShowCategoryModel(name: "Crime", showsID: ["60", "32158", "21532"]),
-    ShowCategoryModel(name: "Documentary", showsID: ["41074", "33952", "13644", "7103"])
+    ShowCategoryModel(name: NSLocalizedString("categoryRecommended", comment: ""), showsID: ["53647", "41074", "60", "38963", "30", "31683"]),
+    ShowCategoryModel(name: NSLocalizedString("categoryPopular", comment: ""), showsID: ["169", "7103", "38963", "53647"]),
+    ShowCategoryModel(name: NSLocalizedString("categoryHorror", comment: ""), showsID: ["53647", "1791", "30", "31683"]),
+    ShowCategoryModel(name: NSLocalizedString("categoryCrime", comment: ""), showsID: ["60", "32158", "21532"]),
+    ShowCategoryModel(name: NSLocalizedString("categoryDocumentary", comment: ""), showsID: ["41074", "33952", "13644", "7103"])
 ]
 

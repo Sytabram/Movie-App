@@ -35,28 +35,49 @@ class HomeViewController: UIViewController{
     private func fetchData() {
         Task {
             do {
-                self.applySnapshot(with: try await DataController.sharedInstance.getCategoryShows())
-            } catch APIError.networkError {
-                // Alert when internet connection is lost
-                self.generateAlert(titleString: NSLocalizedString("generalTitleErrorNetwork", comment: ""), messageString: NSLocalizedString("generalMessageErrorNetwork", comment: ""))
-                
-            } catch APIError.unauthorized {
-                // Alert when access is denied
-                self.generateAlert(titleString: NSLocalizedString("generalTitleAccessDenied", comment: ""), messageString: NSLocalizedString("generalMessageAccessDenied", comment: ""))
-                
-            } catch DataError.decodingError {
-                // Alert when there is a JSON decoding problem
-                self.generateAlert(titleString: NSLocalizedString("generalTitleErrorJSON", comment: ""), messageString: NSLocalizedString("generalMessageErrorJSON", comment: ""))
-                
-            } catch APIError.notFound {
-                self.generateAlert(titleString: NSLocalizedString("generalTitleErrorNotFound", comment: ""), messageString: NSLocalizedString("generalMessageErrorNotFound", comment: ""))
-            }
-            catch {
-                // Manage any other unknown errors
-                self.generateAlert(titleString: NSLocalizedString("generalTitleErrorGlobal", comment: ""), messageString: NSLocalizedString("generalMessageErrorGlobal", comment: ""))
+                let categoryShows = try await DataController.sharedInstance.getCategoryShows()
+                self.applySnapshot(with: categoryShows)
+            } catch {
+                handleError(error)
             }
         }
     }
+    
+    // MARK: - Handle Error
+    private func handleError(_ error: Error) {
+        if let apiError = error as? APIError {
+            switch apiError {
+            case .networkError:
+                // Alert when internet connection is lost
+                self.generateAlert(titleString: NSLocalizedString("generalTitleErrorNetwork", comment: ""),
+                                  messageString: NSLocalizedString("generalMessageErrorNetwork", comment: ""))
+                
+            case .unauthorized:
+                // Alert when access is denied
+                self.generateAlert(titleString: NSLocalizedString("generalTitleAccessDenied", comment: ""),
+                                  messageString: NSLocalizedString("generalMessageAccessDenied", comment: ""))
+                
+            case .notFound:
+                // Alert when resource is not found
+                self.generateAlert(titleString: NSLocalizedString("generalTitleErrorNotFound", comment: ""),
+                                  messageString: NSLocalizedString("generalMessageErrorNotFound", comment: ""))
+                
+            default:
+                // Handle any other API errors
+                self.generateAlert(titleString: NSLocalizedString("generalTitleErrorGlobal", comment: ""),
+                                  messageString: NSLocalizedString("generalMessageErrorGlobal", comment: ""))
+            }
+        } else if let dataError = error as? DataError, dataError == .decodingError {
+            // Alert when there is a JSON decoding problem
+            self.generateAlert(titleString: NSLocalizedString("generalTitleErrorJSON", comment: ""),
+                              messageString: NSLocalizedString("generalMessageErrorJSON", comment: ""))
+        } else {
+            // Manage any other unknown errors
+            self.generateAlert(titleString: NSLocalizedString("generalTitleErrorGlobal", comment: ""),
+                              messageString: NSLocalizedString("generalMessageErrorGlobal", comment: ""))
+        }
+    }
+    
     // MARK: - Generate Alert
     func generateAlert(titleString:String, messageString:String){
         DispatchQueue.main.async {

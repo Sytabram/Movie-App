@@ -23,17 +23,21 @@ class DataController {
     // MARK: - Getting Home Shows Data
     func getCategoryShows() async throws -> [(String, [ShowModel])] {
         var orderedCategories: [(String, [ShowModel])] = []
-        
         var categoryModels = mockShowCategoryModels
         
+        // Insert watchlisted shows at the beginning if any exist
         if watchlistedShows.showsID.count > 0 {
             categoryModels.insert(watchlistedShows, at: 0)
         }
         
+        // Process each category
         for category in categoryModels {
+            // Create an array of optional shows with the right size to preserve order
             var orderedShows = Array<ShowModel?>(repeating: nil, count: category.showsID.count)
             
+            // Use task group for concurrent fetching of shows
             try await withThrowingTaskGroup(of: (Int, ShowModel).self) { group in
+                // Create a task for each show ID in the category
                 for (index, id) in category.showsID.enumerated() {
                     group.addTask {
                         let show = try await self.getShow(idString: id)
@@ -41,17 +45,18 @@ class DataController {
                     }
                 }
                 
+                // Collect results while preserving original order
                 for try await (index, show) in group {
                     orderedShows[index] = show
                 }
             }
+            
+            // Add the category name and its non-nil shows to the result
             orderedCategories.append((category.name, orderedShows.compactMap { $0 }))
         }
         
         return orderedCategories
     }
-
-    
     
     // MARK: - Getting Background Image
     func getBackgroundImage(idString: String) async throws -> String {
@@ -71,8 +76,6 @@ class DataController {
         // Throw an error if no background image was found
         throw DataError.imageBackgroundEmpty
     }
-    
-    
     
     // MARK: - Get and Decode Show
     func getShow(idString: String) async throws -> ShowModel {
@@ -130,22 +133,24 @@ class DataController {
         }
     }
     
+    // MARK: - Update Watchlist
     func updateWatchlist(showID: String) {
         if watchlistedShows.showsID.contains(showID) {
             watchlistedShows.showsID.removeAll { $0 == showID}
         } else {
             watchlistedShows.showsID.append(showID)
         }
-        print(watchlistedShows.showsID)
         saveWatchlist(items: watchlistedShows)
     }
     
+    // MARK: - Save Watchlist
     func saveWatchlist(items: ShowCategoryModel) {
         if let encoded = try? JSONEncoder().encode(items) {
             UserDefaults.standard.set(encoded, forKey: "savedWatchlist")
         }
     }
     
+    // MARK: - Load Watchlist
     func loadWatchlist() {
         if let savedData = UserDefaults.standard.data(forKey: "savedWatchlist"),
            let decodedItems = try? JSONDecoder().decode(ShowCategoryModel.self, from: savedData) {

@@ -22,11 +22,14 @@ class DetailViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         showsIDString = detailShowModel!.id.codingKey.stringValue
+        
+        // Set the button icon to a checkmark if watchlisted
         if DataController.sharedInstance.watchlistedShows.showsID.contains((showsIDString)) {
             addButton.setImage(UIImage(systemName: "checkmark.square.fill"), for: UIControl.State.normal)
         } else {
             addButton.setImage(UIImage(systemName: "plus.app"), for: UIControl.State.normal)
         }
+        
         // Set the rating image view to a filled star icon
         ratingImageView.image = UIImage(systemName: "star.fill")
         
@@ -75,7 +78,7 @@ class DetailViewController: UIViewController {
         self.posterImageView.layer.zPosition = 1
         self.nameLabel.layer.zPosition = 1
     }
-    
+    // MARK: - Add To Watchlist
     @IBAction func addToWatchlist(_ sender: UILongPressGestureRecognizer) {
         DataController.sharedInstance.updateWatchlist(showID: showsIDString)
         if DataController.sharedInstance.watchlistedShows.showsID.contains((showsIDString)) {
@@ -86,7 +89,7 @@ class DetailViewController: UIViewController {
         }
     }
 }
-
+// MARK: - Extension Animated Checkmark
 extension DetailViewController {
     func showAnimatedCheckmarkToast(duration: TimeInterval = 1.5) {
         // Create the toast view
@@ -147,7 +150,7 @@ extension DetailViewController {
         }
     }
     
-    // Method for generating haptic feedback
+    //MARK: - Generate Haptic Feedback
     private func generateHapticFeedback(style: UIImpactFeedbackGenerator.FeedbackStyle) {
         let generator = UIImpactFeedbackGenerator(style: style)
         generator.prepare()
@@ -155,7 +158,7 @@ extension DetailViewController {
     }
 }
 
-// Custom view for check animation
+//MARK: - View checkmark animation
 class CheckmarkView: UIView {
     private let checkmarkLayer = CAShapeLayer()
     
@@ -169,6 +172,7 @@ class CheckmarkView: UIView {
         setup()
     }
     
+    // MARK: - Setup
     private func setup() {
         // Configuring the check mark layer
         checkmarkLayer.fillColor = nil
@@ -189,6 +193,7 @@ class CheckmarkView: UIView {
         layer.addSublayer(checkmarkLayer)
     }
     
+    // MARK: - Override Layout Subviews
     override func layoutSubviews() {
         super.layoutSubviews()
         
@@ -200,6 +205,7 @@ class CheckmarkView: UIView {
         checkmarkLayer.path = path.cgPath
     }
     
+    // MARK: - Animate
     func animate(completion: (() -> Void)? = nil) {
         // Animation of the check layout
         let animation = CABasicAnimation(keyPath: "strokeEnd")
@@ -234,6 +240,7 @@ class CheckmarkView: UIView {
     }
 }
 
+// MARK: - Checkmark Animation Delegate
 // Delegate to detect the end of the animation
 class CheckmarkAnimationDelegate: NSObject, CAAnimationDelegate {
     private let completion: () -> Void

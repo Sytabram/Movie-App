@@ -24,41 +24,27 @@ class HomeViewController: UIViewController{
         homeCollectionView.register(SectionHeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "SectionHeaderView")
         homeCollectionView.collectionViewLayout = createLayout()
         configureDataSource(for: homeCollectionView)
-        
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+            super.viewDidAppear(animated)
+            fetchData()
+    }
+    
+    // MARK: - Fetch Data
+    private func fetchData() {
         Task {
             do {
-                self.applySnapshot(with: try await DataController.sharedInstance.getCategoryShows())
-            } catch APIError.networkError {
-                // Alert when internet connection is lost
-                self.generateAlert(titleString: NSLocalizedString("generalTitleErrorNetwork", comment: ""), messageString: NSLocalizedString("generalMessageErrorNetwork", comment: ""))
-                
-            } catch APIError.unauthorized {
-                // Alert when access is denied
-                self.generateAlert(titleString: NSLocalizedString("generalTitleAccessDenied", comment: ""), messageString: NSLocalizedString("generalMessageAccessDenied", comment: ""))
-                
-            } catch DataError.decodingError {
-                // Alert when there is a JSON decoding problem
-                self.generateAlert(titleString: NSLocalizedString("generalTitleErrorJSON", comment: ""), messageString: NSLocalizedString("generalMessageErrorJSON", comment: ""))
-                
-            } catch APIError.notFound {
-                self.generateAlert(titleString: NSLocalizedString("generalTitleErrorNotFound", comment: ""), messageString: NSLocalizedString("generalMessageErrorNotFound", comment: ""))
-            }
-            catch {
-                // Manage any other unknown errors
-                self.generateAlert(titleString: NSLocalizedString("generalTitleErrorGlobal", comment: ""), messageString: NSLocalizedString("generalMessageErrorGlobal", comment: ""))
+                let categoryShows = try await DataController.sharedInstance.getCategoryShows()
+                self.applySnapshot(with: categoryShows)
+            } catch {
+                ErrorManager.shared.handleError(error, in: self, retryAction: { [weak self] in
+                    self?.fetchData()
+                })
             }
         }
     }
-    // MARK: - Generate Alert
-    func generateAlert(titleString:String, messageString:String){
-        DispatchQueue.main.async {
-            let alertController = UIAlertController(title: titleString, message: messageString, preferredStyle: .alert)
-            alertController.addAction(UIAlertAction(title: NSLocalizedString("buttonQuit", comment: ""), style: .default, handler: { (action:UIAlertAction!) -> Void in
-                exit(0);
-            }))
-            self.present(alertController, animated: true)
-        }
-    }
+    
     // MARK: - Create Layout
     func createLayout() -> UICollectionViewLayout {
         return UICollectionViewCompositionalLayout { (sectionIndex, layoutEnvironment) -> NSCollectionLayoutSection? in
@@ -114,19 +100,33 @@ class HomeViewController: UIViewController{
     }
     // MARK: - Apply Snapshot
     func applySnapshot(with data: [(String, [ShowModel])]) {
-        var snapshot = NSDiffableDataSourceSnapshot<Section, ItemShowModel>()
+        // Creating a new snapshot
+        var newSnapshot = NSDiffableDataSourceSnapshot<Section, ItemShowModel>()
         
         for (categoryName, shows) in data {
             let section = Section.category(categoryName)
-            snapshot.appendSections([section])
+            newSnapshot.appendSections([section])
             
             let items = shows.map { ItemShowModel(from: $0) }
-            snapshot.appendItems(items, toSection: section)
-        }
-        DispatchQueue.main.async {
-            self.dataSource.apply(snapshot, animatingDifferences: true)
+            newSnapshot.appendItems(items, toSection: section)
         }
         
+        // Compare whether the data is identical to the current state
+        let currentSnapshot = dataSource.snapshot()
+        let areSnapshotsIdentical = currentSnapshot.sectionIdentifiers == newSnapshot.sectionIdentifiers &&
+                                   currentSnapshot.itemIdentifiers == newSnapshot.itemIdentifiers
+        
+        // If the data is identical, avoid unnecessary updating
+        guard !areSnapshotsIdentical else { return }
+        
+        // Apply with controlled animation
+        DispatchQueue.main.async {
+            let animationOptions: UIView.AnimationOptions = [.transitionCrossDissolve, .allowUserInteraction]
+            
+            UIView.transition(with: self.homeCollectionView, duration: 0.3, options: animationOptions) {
+                self.dataSource.apply(newSnapshot, animatingDifferences: false)
+            }
+        }
     }
 }
 // MARK: - Extension : Did Select Item

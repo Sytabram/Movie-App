@@ -59,31 +59,25 @@ class SearchViewController: UIViewController, UISearchResultsUpdating {
     
     // MARK: - Update Search Results
     func updateSearchResults(for searchController: UISearchController) {
-        guard let text = searchController.searchBar.text, !text.isEmpty, let searchResultsController = searchController.searchResultsController as? SearchResultsViewController else { return }
+        guard let text = searchController.searchBar.text, !text.isEmpty,
+              let searchResultsController = searchController.searchResultsController as? SearchResultsViewController else { return }
+        
+        performSearch(with: text, searchResultsController: searchResultsController)
+    }
+    
+    private func performSearch(with text: String, searchResultsController: SearchResultsViewController) {
         Task {
             do {
                 let searchedShows = try await DataController.sharedInstance.getSearch(searchString: text)
                 DispatchQueue.main.async {
                     searchResultsController.updateResults(with: searchedShows)
                 }
-            } catch APIError.networkError {
-                self.generateAlert(titleString: NSLocalizedString("generalTitleErrorNetwork", comment: ""), messageString: NSLocalizedString("generalMessageErrorNetwork", comment: ""))
-            } catch APIError.unauthorized {
-                self.generateAlert(titleString: NSLocalizedString("generalTitleAccessDenied", comment: ""), messageString: NSLocalizedString("generalMessageAccessDenied", comment: ""))
-            } catch DataError.decodingError {
-                self.generateAlert(titleString: NSLocalizedString("generalTitleErrorJSON", comment: ""), messageString: NSLocalizedString("generalMessageErrorJSON", comment: ""))
+            } catch let error {
+                ErrorManager.shared.handleError(error, in: self) { [weak self] in
+                    guard let self = self else { return }
+                    self.performSearch(with: text, searchResultsController: searchResultsController)
+                }
             }
-        }
-    }
-
-    // MARK: - Generate Alert
-    func generateAlert(titleString: String, messageString: String) {
-        DispatchQueue.main.async {
-            let alertController = UIAlertController(title: titleString, message: messageString, preferredStyle: .alert)
-            alertController.addAction(UIAlertAction(title: NSLocalizedString("buttonQuit", comment: ""), style: .default, handler: { (action:UIAlertAction!) -> Void in
-                exit(0)
-            }))
-            self.present(alertController, animated: true)
         }
     }
 }

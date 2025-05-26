@@ -54,7 +54,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="0LZ-aL-ORR">
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" highlighted="YES" translatesAutoresizingMaskIntoConstraints="NO" id="0LZ-aL-ORR">
                                 <rect key="frame" x="20" y="200" width="150" height="250"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="150" id="DWb-7U-h5h"/>
@@ -76,17 +76,6 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="3uf-Qa-xIs">
-                                <rect key="frame" x="0.0" y="470" width="393" height="250"/>
-                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="250" id="lQC-3G-AIq"/>
-                                </constraints>
-                                <string key="text">Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.</string>
-                                <color key="textColor" systemColor="labelColor"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
-                            </textView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="u2p-RQ-byi">
                                 <rect key="frame" x="210" y="410" width="133" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
@@ -108,36 +97,41 @@
                                     <action selector="addToWatchlist:" destination="cvj-Rt-HzW" eventType="touchUpInside" id="9R1-7W-RoL"/>
                                 </connections>
                             </button>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="Ou0-ZQ-x95">
+                                <rect key="frame" x="5" y="460" width="383" height="319"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                            </tableView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="E0d-KH-G6q"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="APP-fo-vdW" firstAttribute="leading" secondItem="E0d-KH-G6q" secondAttribute="leading" id="6Y4-Bm-RIt"/>
-                            <constraint firstItem="3uf-Qa-xIs" firstAttribute="leading" secondItem="E0d-KH-G6q" secondAttribute="leading" id="7b6-pi-Foo"/>
-                            <constraint firstItem="3uf-Qa-xIs" firstAttribute="top" secondItem="0LZ-aL-ORR" secondAttribute="bottom" constant="20" id="7wR-Hj-34C"/>
                             <constraint firstItem="mvF-C1-siU" firstAttribute="top" secondItem="lrl-ug-ajH" secondAttribute="bottom" constant="5" id="DS2-ai-Y2J"/>
-                            <constraint firstItem="E0d-KH-G6q" firstAttribute="trailing" secondItem="3uf-Qa-xIs" secondAttribute="trailing" id="ECo-Ke-lBm"/>
                             <constraint firstItem="0LZ-aL-ORR" firstAttribute="leading" secondItem="E0d-KH-G6q" secondAttribute="leading" constant="20" id="HL8-FE-pSy"/>
                             <constraint firstItem="5iF-rX-ghx" firstAttribute="top" secondItem="APP-fo-vdW" secondAttribute="bottom" constant="7" id="I37-mj-wNW"/>
                             <constraint firstItem="0LZ-aL-ORR" firstAttribute="top" secondItem="APP-fo-vdW" secondAttribute="bottom" constant="-50" id="Nhe-7D-lvW"/>
+                            <constraint firstItem="E0d-KH-G6q" firstAttribute="bottom" secondItem="Ou0-ZQ-x95" secondAttribute="bottom" constant="5" id="SGb-bw-45f"/>
                             <constraint firstItem="E0d-KH-G6q" firstAttribute="trailing" secondItem="5iF-rX-ghx" secondAttribute="trailing" constant="16" id="Wv8-Ng-I07"/>
                             <constraint firstItem="u2p-RQ-byi" firstAttribute="leading" secondItem="mvF-C1-siU" secondAttribute="trailing" id="XT1-uk-NTt"/>
                             <constraint firstItem="lrl-ug-ajH" firstAttribute="leading" secondItem="0LZ-aL-ORR" secondAttribute="trailing" constant="10" id="cbK-27-YSU"/>
                             <constraint firstItem="lrl-ug-ajH" firstAttribute="top" secondItem="APP-fo-vdW" secondAttribute="bottom" constant="50" id="fNo-tq-obJ"/>
                             <constraint firstItem="E0d-KH-G6q" firstAttribute="trailing" secondItem="lrl-ug-ajH" secondAttribute="trailing" constant="20" id="gWn-Ho-909"/>
+                            <constraint firstItem="Ou0-ZQ-x95" firstAttribute="top" secondItem="0LZ-aL-ORR" secondAttribute="bottom" constant="10" id="jGe-PE-dpY"/>
                             <constraint firstItem="E0d-KH-G6q" firstAttribute="trailing" secondItem="u2p-RQ-byi" secondAttribute="trailing" constant="50" id="mlr-dC-yRf"/>
                             <constraint firstItem="APP-fo-vdW" firstAttribute="top" secondItem="G17-UJ-qvU" secondAttribute="top" id="o4x-hS-cE9"/>
+                            <constraint firstItem="Ou0-ZQ-x95" firstAttribute="leading" secondItem="E0d-KH-G6q" secondAttribute="leading" constant="5" id="oeu-aP-Q2D"/>
                             <constraint firstItem="u2p-RQ-byi" firstAttribute="top" secondItem="lrl-ug-ajH" secondAttribute="bottom" constant="10" id="pNX-rz-GSk"/>
                             <constraint firstItem="E0d-KH-G6q" firstAttribute="trailing" secondItem="APP-fo-vdW" secondAttribute="trailing" id="pdu-Ju-Lve"/>
                             <constraint firstItem="mvF-C1-siU" firstAttribute="leading" secondItem="0LZ-aL-ORR" secondAttribute="trailing" constant="10" id="rLc-HM-cMT"/>
+                            <constraint firstItem="E0d-KH-G6q" firstAttribute="trailing" secondItem="Ou0-ZQ-x95" secondAttribute="trailing" constant="5" id="v8b-dG-IrM"/>
                             <constraint firstItem="lrl-ug-ajH" firstAttribute="top" secondItem="5iF-rX-ghx" secondAttribute="bottom" constant="8" id="yWi-6Q-Y4V"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="7jt-4t-i0W"/>
                     <connections>
                         <outlet property="addButton" destination="5iF-rX-ghx" id="9RX-Gf-qpt"/>
-                        <outlet property="backgroundImageView" destination="APP-fo-vdW" id="aSO-ds-gmz"/>
-                        <outlet property="descriptionTextView" destination="3uf-Qa-xIs" id="snT-Sb-e7x"/>
+                        <outlet property="backgroundImageView" destination="APP-fo-vdW" id="3ON-jO-8P8"/>
+                        <outlet property="infoTableView" destination="Ou0-ZQ-x95" id="Tbn-Db-tJt"/>
                         <outlet property="nameLabel" destination="lrl-ug-ajH" id="SOJ-AH-efW"/>
                         <outlet property="posterImageView" destination="0LZ-aL-ORR" id="hco-Ki-7mu"/>
                         <outlet property="ratingImageView" destination="mvF-C1-siU" id="jmf-4o-xvQ"/>
@@ -225,9 +219,6 @@
         <image name="house.fill" catalog="system" width="128" height="104"/>
         <image name="magnifyingglass" catalog="system" width="128" height="117"/>
         <image name="plus.app" catalog="system" width="128" height="114"/>
-        <systemColor name="labelColor">
-            <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-        </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

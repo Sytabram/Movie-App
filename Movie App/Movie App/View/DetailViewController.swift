@@ -49,7 +49,7 @@ class DetailViewController: UIViewController {
     
     private func setupUI() {
         // Configure poster image view
-        posterImageView.layer.cornerRadius = 20
+        posterImageView.layer.cornerRadius = 25
         posterImageView.clipsToBounds = true
         posterImageView.layer.zPosition = 1
         
@@ -623,6 +623,7 @@ extension DetailViewController {
     func showAnimatedCheckmarkToast(duration: TimeInterval = 1.5) {
         // Create toast container
         let toastContainer = UIView()
+        toastContainer.layer.zPosition = 1
         toastContainer.backgroundColor = UIColor.black.withAlphaComponent(0.7)
         toastContainer.layer.cornerRadius = 30
         toastContainer.translatesAutoresizingMaskIntoConstraints = false

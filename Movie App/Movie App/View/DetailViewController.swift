@@ -150,7 +150,8 @@ class DetailViewController: UIViewController {
             } catch {
                 // Handle failure with default image
                 DispatchQueue.main.async {
-                    self.backgroundImageView.image = APIController.sharedInstance.defaultImage
+                    self.posterImageView.image = APIController.sharedInstance.defaultImage
+                    self.posterImageView.contentMode = .center
                 }
             }
         }

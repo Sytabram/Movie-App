@@ -19,7 +19,7 @@ class APIController {
     private let baseURL:String = "https://api.tvmaze.com/"
     
     // Set a default image
-    let defaultImage = UIImage(systemName: "photo.on.rectangle.angled")
+    let defaultImage = UIImage(systemName: "photo.on.rectangle.angled", withConfiguration: UIImage.SymbolConfiguration(pointSize: 100))
     
     // MARK: - Getting Show From API
     func getShowAPI(idString: String) async throws -> Data {

@@ -163,42 +163,42 @@ class DetailViewController: UIViewController {
         
         // Release date
         if let premiered = detailShowModel.premiered, !premiered.isEmpty {
-            detailsArray.append(DetailInfo(key: "RELEASE DATE", value: formatDate(premiered)))
+            detailsArray.append(DetailInfo(key: NSLocalizedString("detailReleaseDate", comment: ""), value: formatDate(premiered), link: false))
         }
         
         // Genres
         if let genres = detailShowModel.genres, !genres.isEmpty {
-            detailsArray.append(DetailInfo(key: "GENRES", value: genres.joined(separator: ", ")))
+            detailsArray.append(DetailInfo(key: NSLocalizedString("detailGenres", comment: ""), value: genres.joined(separator: ", "), link: false))
         }
         
         // Network
         if let networkName = detailShowModel.network, !networkName.isEmpty {
-            detailsArray.append(DetailInfo(key: "NETWORK", value: networkName))
+            detailsArray.append(DetailInfo(key: NSLocalizedString("detailNetwork", comment: ""), value: networkName, link: false))
         }
         
         // Status
         if let status = detailShowModel.status, !status.isEmpty {
-            detailsArray.append(DetailInfo(key: "STATUS", value: status))
+            detailsArray.append(DetailInfo(key: NSLocalizedString("detailStatus", comment: ""), value: status, link: false))
         }
         
         // Runtime
         if let runtime = detailShowModel.runtime, runtime > 0 {
-            detailsArray.append(DetailInfo(key: "RUNTIME", value: "\(runtime) minutes"))
+            detailsArray.append(DetailInfo(key: NSLocalizedString("detailRuntime", comment: ""), value: "\(runtime) minutes", link: false))
         }
         
         // End date
         if let ended = detailShowModel.ended, !ended.isEmpty {
-            detailsArray.append(DetailInfo(key: "ENDED", value: formatDate(ended)))
+            detailsArray.append(DetailInfo(key: NSLocalizedString("detailEnded", comment: ""), value: formatDate(ended), link: false))
         }
         
         // Official site
         if let officialSite = detailShowModel.officialSite, !officialSite.isEmpty {
-            detailsArray.append(DetailInfo(key: "OFFICIAL SITE", value: officialSite))
+            detailsArray.append(DetailInfo(key: NSLocalizedString("detailOfficialSite", comment: ""), value: officialSite, link: true))
         }
         
         // IMDB
         if let imdb = detailShowModel.imdb, !imdb.isEmpty {
-            detailsArray.append(DetailInfo(key: "IMDB", value: imdb))
+            detailsArray.append(DetailInfo(key: NSLocalizedString("detailIMDB", comment: ""), value: imdb, link: false))
         }
     }
     
@@ -345,7 +345,7 @@ class DetailViewController: UIViewController {
         let detailInfo = detailsArray[indexPath.row]
         
         // Special handling for official site links
-        if detailInfo.key == "OFFICIAL SITE" {
+        if detailInfo.link {
             return createLinkCell(with: detailInfo.value, title: detailInfo.key, at: indexPath)
         }
         
@@ -380,7 +380,7 @@ class DetailViewController: UIViewController {
         var content = cell.defaultContentConfiguration()
         
         if let days = detailShowModel?.scheduleDays, indexPath.row < days.count {
-            content.text = "SCHEDULE"
+            content.text = NSLocalizedString("detailSchedule", comment: "")
             content.textProperties.font = UIFont.systemFont(ofSize: 12, weight: .medium)
             content.textProperties.color = .lightGrayText
             
@@ -428,7 +428,7 @@ class DetailViewController: UIViewController {
     
     private func createReadMoreButton(fullText: String) -> UIButton {
         let button = UIButton(type: .system)
-        button.setTitle("Read more", for: .normal)
+        button.setTitle(NSLocalizedString("detailReadMore", comment: ""), for: .normal)
         button.setTitleColor(.systemBlue, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .medium)
         button.sizeToFit()
@@ -445,7 +445,7 @@ class DetailViewController: UIViewController {
     private func showSimpleSummaryViewController(with text: String) {
         let summaryViewController = UIViewController()
         summaryViewController.view.backgroundColor = UIColor.systemBackground
-        summaryViewController.title = "Full Summary"
+        summaryViewController.title = NSLocalizedString("titleFullSummary", comment: "")
         
         let navController = UINavigationController(rootViewController: summaryViewController)
         
@@ -579,7 +579,7 @@ extension DetailViewController: UITableViewDataSource, UITableViewDelegate {
         if infoSection == .details && indexPath.row < detailsArray.count {
             let detailInfo = detailsArray[indexPath.row]
             
-            if detailInfo.key == "OFFICIAL SITE" {
+            if detailInfo.link {
                 openURL(detailInfo.value)
             }
         }
@@ -689,9 +689,9 @@ enum InfoSection: Int, CaseIterable {
     
     var title: String {
         switch self {
-        case .summary: return "SUMMARY"
-        case .details: return "INFORMATION"
-        case .schedule: return "SCHEDULE"
+        case .summary: return NSLocalizedString("detailTitleSummary", comment: "")
+        case .details: return NSLocalizedString("detailTitleInformation", comment: "")
+        case .schedule: return NSLocalizedString("detailTitleSchedule", comment: "")
         }
     }
 }
@@ -699,6 +699,7 @@ enum InfoSection: Int, CaseIterable {
 struct DetailInfo {
     let key: String
     let value: String
+    let link: Bool
 }
 
 private struct TruncatedText {

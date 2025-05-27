@@ -52,7 +52,7 @@ class SearchViewController: UIViewController, UISearchResultsUpdating {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Search"
+        title = NSLocalizedString("titleSearch", comment: "")
         searchController.searchResultsUpdater = self
         navigationItem.searchController = searchController
     }

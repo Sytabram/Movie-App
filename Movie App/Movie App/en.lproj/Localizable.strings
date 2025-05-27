@@ -38,7 +38,7 @@
 // Exit Button
 "buttonQuit" = "Exit";
 
-//MARK: - Category Name
+// MARK: - Category Name
 
 // Watchlist
 "categoryWatchlist" = "Watchlist";
@@ -57,3 +57,57 @@
 
 // Documentary
 "categoryDocumentary" = "Documentary";
+
+// MARK: - Detail tableview
+
+// Summary
+"detailTitleSummary" = "SUMMARY";
+
+// Information
+"detailTitleInformation" = "INFORMATION";
+
+//Schedule
+"detailTitleSchedule" = "SCHEDULE";
+
+// Release date
+"detailReleaseDate" = "RELEASE DATE";
+
+// Genres
+"detailGenres" = "GENRES";
+
+// Network
+"detailNetwork" = "NETWORK";
+
+// Status
+"detailStatus" = "STATUS";
+
+// Runtime
+"detailRuntime" = "RUNTIME";
+
+// Ended
+"detailEnded" = "ENDED";
+
+// Official site
+"detailOfficialSite" = "OFFICIAL SITE";
+
+// IMDB
+"detailIMDB" = "IMDB";
+
+// Schedule
+"detailSchedule" = "SCHEDULE";
+
+// Read more button
+"detailReadMore" = "Read more";
+
+// MARK: - View Title
+
+// Search
+"titleSearch" = "Search";
+
+// Home
+"titleHome" = "Home";
+
+// Full Summary
+"titleFullSummary" = "Full Summary";
+
+

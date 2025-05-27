@@ -18,7 +18,7 @@ class DataController {
     }
 
     // Set words to remove from summary
-    private let wordsToRemove = ["<p>", "</p>", "<b>", "</b>"]
+    private let wordsToRemove = ["<p>", "</p>", "<b>", "</b>", "<i>", "</i>", "<em>", "</em>", "<strong>", "</strong>", "<u>", "</u>", "<s>", "</s>"]
     
     // MARK: - Getting Home Shows Data
     func getCategoryShows() async throws -> [(String, [ShowModel])] {

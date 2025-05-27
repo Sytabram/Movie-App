@@ -319,6 +319,13 @@ class DetailViewController: UIViewController {
         } else {
             let truncated = truncateText(detailShowModel?.summary ?? "", maxLength: 150)
             content.text = truncated.text
+            
+            if truncated.isTruncated {
+                let readMoreButton = createReadMoreButton(fullText: detailShowModel?.summary ?? "")
+                cell.accessoryView = readMoreButton
+            } else {
+                cell.accessoryView = nil
+            }
         }
         
         content.textProperties.font = UIFont.systemFont(ofSize: 16)
@@ -344,6 +351,8 @@ class DetailViewController: UIViewController {
         let cell = infoTableView.dequeueReusableCell(withIdentifier: "DetailCell", for: indexPath)
         cell.backgroundColor = .cellBackground
         cell.selectionStyle = .none
+        cell.accessoryView = nil
+        cell.accessoryType = .none
         
         var content = cell.defaultContentConfiguration()
         
@@ -364,6 +373,8 @@ class DetailViewController: UIViewController {
         let cell = infoTableView.dequeueReusableCell(withIdentifier: "DetailCell", for: indexPath)
         cell.backgroundColor = .cellBackground
         cell.selectionStyle = .none
+        cell.accessoryView = nil
+        cell.accessoryType = .none
         
         var content = cell.defaultContentConfiguration()
         
@@ -389,6 +400,10 @@ class DetailViewController: UIViewController {
     
     private func createLinkCell(with url: String, title: String, at indexPath: IndexPath) -> UITableViewCell {
         let cell = infoTableView.dequeueReusableCell(withIdentifier: "DetailCell", for: indexPath)
+        
+        cell.accessoryView = nil
+        cell.accessoryType = .none
+        
         cell.backgroundColor = .cellBackground
         cell.selectionStyle = .default
         cell.accessoryType = .disclosureIndicator

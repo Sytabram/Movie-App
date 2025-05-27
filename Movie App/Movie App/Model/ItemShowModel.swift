@@ -17,7 +17,7 @@ struct ItemShowModel: Hashable {
     let rating: Double?
     let backgroundImageUrl: String?
     
-    var genres: [String] = []
+    var genres: [String]? = []
     let status: String?
     let runtime: Int?
     let premiered: String?

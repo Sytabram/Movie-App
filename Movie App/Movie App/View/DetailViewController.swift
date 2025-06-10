@@ -14,7 +14,7 @@ class DetailViewController: UIViewController {
     
     // MARK: - Properties
     
-    var detailShowModel: ItemShowModel?
+    var detailShowModel: ShowItem?
     private var showsIDString: String = ""
     private var detailsArray: [DetailInfo] = []
     private var processedSummary: String?
@@ -114,7 +114,7 @@ class DetailViewController: UIViewController {
     }
     
     private func updateWatchlistButton() {
-        let isWatchlisted = DataController.sharedInstance.watchlistedShows.showsID.contains(showsIDString)
+        let isWatchlisted = DataController.sharedInstance.watchlistedShows.showIDs.contains(showsIDString)
         let imageName = isWatchlisted ? "checkmark.square.fill" : "plus.app"
         addButton.setImage(UIImage(systemName: imageName), for: .normal)
     }
@@ -515,7 +515,7 @@ class DetailViewController: UIViewController {
         DataController.sharedInstance.updateWatchlist(showID: showsIDString)
         updateWatchlistButton()
         
-        if DataController.sharedInstance.watchlistedShows.showsID.contains(showsIDString) {
+        if DataController.sharedInstance.watchlistedShows.showIDs.contains(showsIDString) {
             showAnimatedCheckmarkToast()
         }
     }

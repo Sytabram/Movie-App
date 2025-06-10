@@ -7,6 +7,7 @@
 
 import Foundation
 
+// MARK: - API Error Types
 enum APIError: Error {
     case invalidURL
     case unauthorized

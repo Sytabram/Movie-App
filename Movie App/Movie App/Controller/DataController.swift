@@ -11,7 +11,7 @@ class DataController {
     
     static var sharedInstance = DataController()
     
-    var watchlistedShows: ShowCategoryModel = ShowCategoryModel(name: NSLocalizedString("categoryWatchlist", comment: ""), showsID: [])
+    var watchlistedShows: ShowCategory = ShowCategory(name: NSLocalizedString("categoryWatchlist", comment: ""), showIDs: [])
     
     struct Static {
         fileprivate static var instance: DataController?
@@ -21,24 +21,24 @@ class DataController {
     private let wordsToRemove = ["<p>", "</p>", "<b>", "</b>", "<i>", "</i>", "<em>", "</em>", "<strong>", "</strong>", "<u>", "</u>", "<s>", "</s>"]
     
     // MARK: - Getting Home Shows Data
-    func getCategoryShows() async throws -> [(String, [ShowModel])] {
-        var orderedCategories: [(String, [ShowModel])] = []
-        var categoryModels = mockShowCategoryModels
+    func getCategoryShows() async throws -> [(String, [Show])] {
+        var orderedCategories: [(String, [Show])] = []
+        var categoryModels = mockShowCategories
         
         // Insert watchlisted shows at the beginning if any exist
-        if watchlistedShows.showsID.count > 0 {
+        if watchlistedShows.showIDs.count > 0 {
             categoryModels.insert(watchlistedShows, at: 0)
         }
         
         // Process each category
         for category in categoryModels {
             // Create an array of optional shows with the right size to preserve order
-            var orderedShows = Array<ShowModel?>(repeating: nil, count: category.showsID.count)
+            var orderedShows = Array<Show?>(repeating: nil, count: category.showIDs.count)
             
             // Use task group for concurrent fetching of shows
-            try await withThrowingTaskGroup(of: (Int, ShowModel).self) { group in
+            try await withThrowingTaskGroup(of: (Int, Show).self) { group in
                 // Create a task for each show ID in the category
-                for (index, id) in category.showsID.enumerated() {
+                for (index, id) in category.showIDs.enumerated() {
                     group.addTask {
                         let show = try await self.getShow(idString: id)
                         return (index, show)
@@ -78,12 +78,12 @@ class DataController {
     }
     
     // MARK: - Get and Decode Show
-    func getShow(idString: String) async throws -> ShowModel {
+    func getShow(idString: String) async throws -> Show {
         // Call the API to get the show data
         let data = try await APIController.sharedInstance.getShowAPI(idString: idString)
         do {
             // Decode the JSON data into a ShowModel object
-            let showModel = try JSONDecoder().decode(ShowModel.self, from: data)
+            let showModel = try JSONDecoder().decode(Show.self, from: data)
             return showModel
         } catch {
             // Handle JSON decoding error
@@ -92,13 +92,13 @@ class DataController {
     }
     
     // MARK: - Get and Decode Images
-    func getImages(idString:String) async throws -> [ImageModel]
+    func getImages(idString:String) async throws -> [Image]
     {
         // Call the API to get the images data
         let data = try await APIController.sharedInstance.getImagesAPI(idString: idString)
         do {
-            // Decode the JSON data into a ImageModel object
-            let imageModel = try JSONDecoder().decode([ImageModel].self, from: data)
+            // Decode the JSON data into a Image object
+            let imageModel = try JSONDecoder().decode([Image].self, from: data)
             return imageModel
         } catch {
             // Handle JSON decoding error
@@ -107,14 +107,14 @@ class DataController {
     }
     
     // MARK: - Get and Decode Search
-    func getSearch(searchString:String) async throws -> [SearchShowModel]
+    func getSearch(searchString:String) async throws -> [ShowSearchResult]
     {
         // Call the API to get the search data
         let data = try await APIController.sharedInstance.getSearchAPI(searchString: searchString)
         do {
-            // Decode the JSON data into a SearchShowModel object
-            let searchShowModel = try JSONDecoder().decode([SearchShowModel].self, from: data)
-            return searchShowModel
+            // Decode the JSON data into a ShowSearchResult object
+            let ShowSearchResult = try JSONDecoder().decode([ShowSearchResult].self, from: data)
+            return ShowSearchResult
         } catch {
             // Handle JSON decoding error
             print("Error decoding JSON: \(error)")
@@ -135,16 +135,16 @@ class DataController {
     
     // MARK: - Update Watchlist
     func updateWatchlist(showID: String) {
-        if watchlistedShows.showsID.contains(showID) {
-            watchlistedShows.showsID.removeAll { $0 == showID}
+        if watchlistedShows.showIDs.contains(showID) {
+            watchlistedShows.showIDs.removeAll { $0 == showID}
         } else {
-            watchlistedShows.showsID.append(showID)
+            watchlistedShows.showIDs.append(showID)
         }
         saveWatchlist(items: watchlistedShows)
     }
     
     // MARK: - Save Watchlist
-    func saveWatchlist(items: ShowCategoryModel) {
+    func saveWatchlist(items: ShowCategory) {
         if let encoded = try? JSONEncoder().encode(items) {
             UserDefaults.standard.set(encoded, forKey: "savedWatchlist")
         }
@@ -153,7 +153,7 @@ class DataController {
     // MARK: - Load Watchlist
     func loadWatchlist() {
         if let savedData = UserDefaults.standard.data(forKey: "savedWatchlist"),
-           let decodedItems = try? JSONDecoder().decode(ShowCategoryModel.self, from: savedData) {
+           let decodedItems = try? JSONDecoder().decode(ShowCategory.self, from: savedData) {
             watchlistedShows = decodedItems
         }
     }

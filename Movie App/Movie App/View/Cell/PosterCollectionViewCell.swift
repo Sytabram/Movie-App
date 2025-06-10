@@ -22,7 +22,7 @@ class PosterCollectionViewCell: UICollectionViewCell {
 
     }
 
-    func configureCell(_ show: ItemShowModel) {
+    func configureCell(_ show: ShowItem) {
         posterNameLabel.text = show.name
         if let imageURLString = show.imageUrl {
             Task {

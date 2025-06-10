@@ -15,7 +15,7 @@ class HomeViewController: UIViewController{
         case category(String)
     }
     
-    private var dataSource: UICollectionViewDiffableDataSource<Section, ItemShowModel>!
+    private var dataSource: UICollectionViewDiffableDataSource<Section, ShowItem>!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -77,7 +77,7 @@ class HomeViewController: UIViewController{
     }
     // MARK: - Configure DataSource
     func configureDataSource(for collectionView: UICollectionView) {
-        dataSource = UICollectionViewDiffableDataSource<Section, ItemShowModel>(collectionView: collectionView) { collectionView, indexPath, item in
+        dataSource = UICollectionViewDiffableDataSource<Section, ShowItem>(collectionView: collectionView) { collectionView, indexPath, item in
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PosterCollectionViewCell", for: indexPath) as! PosterCollectionViewCell
             cell.configureCell(item)
             return cell
@@ -99,15 +99,15 @@ class HomeViewController: UIViewController{
         }
     }
     // MARK: - Apply Snapshot
-    func applySnapshot(with data: [(String, [ShowModel])]) {
+    func applySnapshot(with data: [(String, [Show])]) {
         // Creating a new snapshot
-        var newSnapshot = NSDiffableDataSourceSnapshot<Section, ItemShowModel>()
+        var newSnapshot = NSDiffableDataSourceSnapshot<Section, ShowItem>()
         
         for (categoryName, shows) in data {
             let section = Section.category(categoryName)
             newSnapshot.appendSections([section])
             
-            let items = shows.map { ItemShowModel(from: $0) }
+            let items = shows.map { ShowItem(from: $0) }
             newSnapshot.appendItems(items, toSection: section)
         }
         

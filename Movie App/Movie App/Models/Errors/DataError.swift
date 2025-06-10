@@ -7,6 +7,7 @@
 
 import Foundation
 
+// MARK: - Data Processing Error Types
 enum DataError: Error {
     case decodingError
     case isEmpty

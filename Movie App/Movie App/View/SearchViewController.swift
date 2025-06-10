@@ -11,13 +11,13 @@ import UIKit
 
 class SearchResultsViewController: UITableViewController {
     
-    typealias DataSource = UITableViewDiffableDataSource<Int, ItemShowModel>
-    typealias Snapshot = NSDiffableDataSourceSnapshot<Int, ItemShowModel>
+    typealias DataSource = UITableViewDiffableDataSource<Int, ShowItem>
+    typealias Snapshot = NSDiffableDataSourceSnapshot<Int, ShowItem>
     
     private lazy var dataSource: DataSource = {
-        return DataSource(tableView: tableView) { tableView, indexPath, searchShowModel in
+        return DataSource(tableView: tableView) { tableView, indexPath, ShowSearchResult in
             let cell = tableView.dequeueReusableCell(withIdentifier: "ResultCell", for: indexPath) as! ResultTableViewCell
-            cell.textLabel?.text = searchShowModel.name
+            cell.textLabel?.text = ShowSearchResult.name
             return cell
         }
     }()
@@ -29,8 +29,8 @@ class SearchResultsViewController: UITableViewController {
     }
     
     // MARK: - Updating Results
-    func updateResults(with results: [SearchShowModel]) {
-        let items = results.map { ItemShowModel(from: $0.show) }
+    func updateResults(with results: [ShowSearchResult]) {
+        let items = results.map { ShowItem(from: $0.show) }
         var snapshot = Snapshot()
         snapshot.appendSections([0])
         snapshot.appendItems(items)

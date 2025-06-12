@@ -68,7 +68,7 @@ class SearchViewController: UIViewController, UISearchResultsUpdating {
     private func performSearch(with text: String, searchResultsController: SearchResultsViewController) {
         Task {
             do {
-                let searchedShows = try await DataController.sharedInstance.getSearch(searchString: text)
+                let searchedShows = try await DataController.shared.getSearch(searchString: text)
                 DispatchQueue.main.async {
                     searchResultsController.updateResults(with: searchedShows)
                 }

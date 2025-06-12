@@ -6,7 +6,6 @@
 //
 
 import Foundation
-
 import UIKit
 
 class ErrorManager {
@@ -15,7 +14,7 @@ class ErrorManager {
     static let shared = ErrorManager()
     private init() {}
     
-    // MARK: - Struct Alert Actions
+    // MARK: - Alert Action Structure
     struct AlertAction {
         let title: String
         let style: UIAlertAction.Style
@@ -28,21 +27,37 @@ class ErrorManager {
         }
     }
     
-    // MARK: - Handle Error
-    func handleError(_ error: Error, in viewController: UIViewController, retryAction: (() -> Void)? = nil) {
+    // MARK: - Public Methods
+    
+    /// Handles different types of errors and displays appropriate alerts
+    /// - Parameters:
+    ///   - error: The error to handle
+    ///   - viewController: The view controller to present the alert in
+    ///   - retryAction: Optional retry action closure
+    func handleError(
+        _ error: Error,
+        in viewController: UIViewController,
+        retryAction: (() -> Void)? = nil
+    ) {
         logError(error)
         
-        // Determine the type of error and display the appropriate alert
-        if let apiError = error as? APIError {
+        switch error {
+        case let apiError as APIError:
             handleAPIError(apiError, in: viewController, retryAction: retryAction)
-        } else if let dataError = error as? DataError, dataError == .decodingError {
+        case let dataError as DataError where dataError == .decodingError:
             handleDataError(dataError, in: viewController, retryAction: retryAction)
-        } else {
+        default:
             handleGenericError(error, in: viewController, retryAction: retryAction)
         }
     }
     
-    //MARK: - Show Alert
+    /// Shows a customizable alert dialog
+    /// - Parameters:
+    ///   - title: Alert title
+    ///   - message: Alert message
+    ///   - viewController: View controller to present in
+    ///   - primaryAction: Primary action button
+    ///   - secondaryAction: Optional secondary action button
     func showAlert(
         title: String,
         message: String,
@@ -51,15 +66,25 @@ class ErrorManager {
         secondaryAction: AlertAction? = nil
     ) {
         DispatchQueue.main.async {
-            let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+            let alertController = UIAlertController(
+                title: title,
+                message: message,
+                preferredStyle: .alert
+            )
             
-            let primaryUIAction = UIAlertAction(title: primaryAction.title, style: primaryAction.style) { _ in
+            let primaryUIAction = UIAlertAction(
+                title: primaryAction.title,
+                style: primaryAction.style
+            ) { _ in
                 primaryAction.handler?()
             }
             alertController.addAction(primaryUIAction)
             
             if let secondaryAction = secondaryAction {
-                let secondaryUIAction = UIAlertAction(title: secondaryAction.title, style: secondaryAction.style) { _ in
+                let secondaryUIAction = UIAlertAction(
+                    title: secondaryAction.title,
+                    style: secondaryAction.style
+                ) { _ in
                     secondaryAction.handler?()
                 }
                 alertController.addAction(secondaryUIAction)
@@ -69,57 +94,32 @@ class ErrorManager {
         }
     }
     
-    // MARK: - Handle API Error
-    private func handleAPIError(_ error: APIError, in viewController: UIViewController, retryAction: (() -> Void)?) {
+    // MARK: - Private Methods
+    
+    /// Handles API-specific errors
+    private func handleAPIError(
+        _ error: APIError,
+        in viewController: UIViewController,
+        retryAction: (() -> Void)?
+    ) {
         switch error {
-            case .networkError:
-                showAlert(
-                    title: NSLocalizedString("generalTitleErrorNetwork", comment: ""),
-                    message: NSLocalizedString("generalMessageErrorNetwork", comment: ""),
-                    in: viewController,
-                    primaryAction: AlertAction(
-                        title: NSLocalizedString("buttonRetry", comment: ""),
-                        handler: retryAction
-                    ),
-                    secondaryAction: AlertAction(
-                        title: NSLocalizedString("buttonCancel", comment: ""))
-                )
-                
-            case .unauthorized:
-                showAlert(
-                    title: NSLocalizedString("generalTitleAccessDenied", comment: ""),
-                    message: NSLocalizedString("generalMessageAccessDenied", comment: ""),
-                    in: viewController,
-                    primaryAction: AlertAction(
-                        title: NSLocalizedString("buttonCancel", comment: ""))
-                )
-                
-            case .notFound:
-                showAlert(
-                    title: NSLocalizedString("generalTitleErrorNotFound", comment: ""),
-                    message: NSLocalizedString("generalMessageErrorNotFound", comment: ""),
-                    in: viewController,
-                    primaryAction: AlertAction(
-                        title: NSLocalizedString("buttonCancel", comment: ""))
-                )
-                
-            default:
-                showAlert(
-                    title: NSLocalizedString("generalTitleErrorGlobal", comment: ""),
-                    message: NSLocalizedString("generalMessageErrorGlobal", comment: ""),
-                    in: viewController,
-                    primaryAction: AlertAction(
-                        title: NSLocalizedString("buttonRetry", comment: ""),
-                        handler: retryAction
-                    ),
-                    secondaryAction: AlertAction(
-                        title: NSLocalizedString("buttonCancel", comment: ""))
-                )
-            }
+        case .networkError:
+            showNetworkErrorAlert(in: viewController, retryAction: retryAction)
+        case .unauthorized:
+            showUnauthorizedErrorAlert(in: viewController)
+        case .notFound:
+            showNotFoundErrorAlert(in: viewController)
+        default:
+            showGenericAPIErrorAlert(in: viewController, retryAction: retryAction)
+        }
     }
     
-    //MARK: - Handle Data Error
-    private func handleDataError(_ error: DataError, in viewController: UIViewController, retryAction: (() -> Void)?) {
+    /// Handles data processing errors
+    private func handleDataError(
+        _ error: DataError,
+        in viewController: UIViewController,
+        retryAction: (() -> Void)?
+    ) {
         showAlert(
             title: NSLocalizedString("generalTitleErrorJSON", comment: ""),
             message: NSLocalizedString("generalMessageErrorJSON", comment: ""),
@@ -129,11 +129,17 @@ class ErrorManager {
                 handler: retryAction
             ),
             secondaryAction: AlertAction(
-                title: NSLocalizedString("buttonCancel", comment: ""))
+                title: NSLocalizedString("buttonCancel", comment: "")
+            )
         )
     }
     
-    private func handleGenericError(_ error: Error, in viewController: UIViewController, retryAction: (() -> Void)?) {
+    /// Handles generic errors
+    private func handleGenericError(
+        _ error: Error,
+        in viewController: UIViewController,
+        retryAction: (() -> Void)?
+    ) {
         showAlert(
             title: NSLocalizedString("generalTitleErrorGlobal", comment: ""),
             message: NSLocalizedString("generalMessageErrorGlobal", comment: ""),
@@ -143,11 +149,72 @@ class ErrorManager {
                 handler: retryAction
             ),
             secondaryAction: AlertAction(
-                title: NSLocalizedString("buttonCancel", comment: ""))
+                title: NSLocalizedString("buttonCancel", comment: "")
+            )
         )
     }
     
-    //MARK: - Log Error
+    // MARK: - Specific Alert Methods
+    
+    private func showNetworkErrorAlert(
+        in viewController: UIViewController,
+        retryAction: (() -> Void)?
+    ) {
+        showAlert(
+            title: NSLocalizedString("generalTitleErrorNetwork", comment: ""),
+            message: NSLocalizedString("generalMessageErrorNetwork", comment: ""),
+            in: viewController,
+            primaryAction: AlertAction(
+                title: NSLocalizedString("buttonRetry", comment: ""),
+                handler: retryAction
+            ),
+            secondaryAction: AlertAction(
+                title: NSLocalizedString("buttonCancel", comment: "")
+            )
+        )
+    }
+    
+    private func showUnauthorizedErrorAlert(in viewController: UIViewController) {
+        showAlert(
+            title: NSLocalizedString("generalTitleAccessDenied", comment: ""),
+            message: NSLocalizedString("generalMessageAccessDenied", comment: ""),
+            in: viewController,
+            primaryAction: AlertAction(
+                title: NSLocalizedString("buttonCancel", comment: "")
+            )
+        )
+    }
+    
+    private func showNotFoundErrorAlert(in viewController: UIViewController) {
+        showAlert(
+            title: NSLocalizedString("generalTitleErrorNotFound", comment: ""),
+            message: NSLocalizedString("generalMessageErrorNotFound", comment: ""),
+            in: viewController,
+            primaryAction: AlertAction(
+                title: NSLocalizedString("buttonCancel", comment: "")
+            )
+        )
+    }
+    
+    private func showGenericAPIErrorAlert(
+        in viewController: UIViewController,
+        retryAction: (() -> Void)?
+    ) {
+        showAlert(
+            title: NSLocalizedString("generalTitleErrorGlobal", comment: ""),
+            message: NSLocalizedString("generalMessageErrorGlobal", comment: ""),
+            in: viewController,
+            primaryAction: AlertAction(
+                title: NSLocalizedString("buttonRetry", comment: ""),
+                handler: retryAction
+            ),
+            secondaryAction: AlertAction(
+                title: NSLocalizedString("buttonCancel", comment: "")
+            )
+        )
+    }
+    
+    /// Logs errors for debugging purposes
     private func logError(_ error: Error) {
         print("ERROR: \(error)")
     }

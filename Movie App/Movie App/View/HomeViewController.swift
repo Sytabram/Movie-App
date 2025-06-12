@@ -35,7 +35,7 @@ class HomeViewController: UIViewController{
     private func fetchData() {
         Task {
             do {
-                let categoryShows = try await DataController.sharedInstance.getCategoryShows()
+                let categoryShows = try await DataController.shared.getCategoryShows()
                 self.applySnapshot(with: categoryShows)
             } catch {
                 ErrorManager.shared.handleError(error, in: self, retryAction: { [weak self] in

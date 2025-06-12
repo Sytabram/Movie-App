@@ -114,7 +114,7 @@ class DetailViewController: UIViewController {
     }
     
     private func updateWatchlistButton() {
-        let isWatchlisted = DataController.sharedInstance.watchlistedShows.showIDs.contains(showsIDString)
+        let isWatchlisted = DataController.shared.watchlistedShows.showIDs.contains(showsIDString)
         let imageName = isWatchlisted ? "checkmark.square.fill" : "plus.app"
         addButton.setImage(UIImage(systemName: imageName), for: .normal)
     }
@@ -136,11 +136,11 @@ class DetailViewController: UIViewController {
         Task {
             do {
                 // Load poster image
-                let posterImage = await APIController.sharedInstance.loadImage(from: detailShowModel.imageUrl)
+                let posterImage = await APIController.shared.loadImage(from: detailShowModel.imageUrl)
                 
                 // Load background image
-                let backgroundURLString = try await DataController.sharedInstance.getBackgroundImage(idString: String(detailShowModel.id))
-                let backgroundImage = await APIController.sharedInstance.loadImage(from: backgroundURLString)
+                let backgroundURLString = try await DataController.shared.getBackgroundImage(idString: String(detailShowModel.id))
+                let backgroundImage = await APIController.shared.loadImage(from: backgroundURLString)
                 
                 DispatchQueue.main.async {
                     self.posterImageView.image = posterImage
@@ -150,7 +150,7 @@ class DetailViewController: UIViewController {
             } catch {
                 // Handle failure with default image
                 DispatchQueue.main.async {
-                    self.posterImageView.image = APIController.sharedInstance.defaultImage
+                    self.posterImageView.image = APIController.shared.defaultImage
                     self.posterImageView.contentMode = .center
                 }
             }
@@ -211,7 +211,7 @@ class DetailViewController: UIViewController {
         let truncated = truncateText(summary, maxLength: 150)
         processedSummary = truncated.text
         
-        DataController.sharedInstance.removeWords(from: summary) { [weak self] modifiedSummary in
+        DataController.shared.removeHTMLTags(from: summary) { [weak self] modifiedSummary in
             DispatchQueue.main.async {
                 self?.processedSummary = modifiedSummary
                 self?.isProcessingSummary = false
@@ -512,10 +512,10 @@ class DetailViewController: UIViewController {
     // MARK: - IBActions
     
     @IBAction func addToWatchlist(_ sender: UILongPressGestureRecognizer) {
-        DataController.sharedInstance.updateWatchlist(showID: showsIDString)
+        DataController.shared.updateWatchlist(showID: showsIDString)
         updateWatchlistButton()
         
-        if DataController.sharedInstance.watchlistedShows.showIDs.contains(showsIDString) {
+        if DataController.shared.watchlistedShows.showIDs.contains(showsIDString) {
             showAnimatedCheckmarkToast()
         }
     }

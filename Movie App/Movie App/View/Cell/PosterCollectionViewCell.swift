@@ -27,7 +27,7 @@ class PosterCollectionViewCell: UICollectionViewCell {
         if let imageURLString = show.imageUrl {
             Task {
                 do {
-                    let image = await APIController.sharedInstance.loadImage(from: imageURLString)
+                    let image = await APIController.shared.loadImage(from: imageURLString)
                     DispatchQueue.main.async {
                         // Update the cell image with the loaded image
                         self.posterImageView.image = image

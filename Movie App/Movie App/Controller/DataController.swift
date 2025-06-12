@@ -9,35 +9,41 @@ import Foundation
 
 class DataController {
     
-    static var sharedInstance = DataController()
+    // MARK: - Singleton
+    static let shared = DataController()
+    private init() {}
     
-    var watchlistedShows: ShowCategory = ShowCategory(name: NSLocalizedString("categoryWatchlist", comment: ""), showIDs: [])
+    // MARK: - Properties
+    var watchlistedShows: ShowCategory = ShowCategory(
+        name: NSLocalizedString("categoryWatchlist", comment: ""),
+        showIDs: []
+    )
     
-    struct Static {
-        fileprivate static var instance: DataController?
-    }
-
-    // Set words to remove from summary
-    private let wordsToRemove = ["<p>", "</p>", "<b>", "</b>", "<i>", "</i>", "<em>", "</em>", "<strong>", "</strong>", "<u>", "</u>", "<s>", "</s>"]
+    private let wordsToRemove = [
+        "<p>", "</p>", "<b>", "</b>", "<i>", "</i>",
+        "<em>", "</em>", "<strong>", "</strong>",
+        "<u>", "</u>", "<s>", "</s>"
+    ]
     
-    // MARK: - Getting Home Shows Data
+    // MARK: - Public Methods
+    
+    /// Fetches and organizes shows by categories
+    /// - Returns: Array of tuples containing category names and their shows
+    /// - Throws: Various errors from API or decoding
     func getCategoryShows() async throws -> [(String, [Show])] {
         var orderedCategories: [(String, [Show])] = []
         var categoryModels = mockShowCategories
         
         // Insert watchlisted shows at the beginning if any exist
-        if watchlistedShows.showIDs.count > 0 {
+        if !watchlistedShows.showIDs.isEmpty {
             categoryModels.insert(watchlistedShows, at: 0)
         }
         
         // Process each category
         for category in categoryModels {
-            // Create an array of optional shows with the right size to preserve order
             var orderedShows = Array<Show?>(repeating: nil, count: category.showIDs.count)
             
-            // Use task group for concurrent fetching of shows
             try await withThrowingTaskGroup(of: (Int, Show).self) { group in
-                // Create a task for each show ID in the category
                 for (index, id) in category.showIDs.enumerated() {
                     group.addTask {
                         let show = try await self.getShow(idString: id)
@@ -45,116 +51,127 @@ class DataController {
                     }
                 }
                 
-                // Collect results while preserving original order
                 for try await (index, show) in group {
                     orderedShows[index] = show
                 }
             }
             
-            // Add the category name and its non-nil shows to the result
             orderedCategories.append((category.name, orderedShows.compactMap { $0 }))
         }
         
         return orderedCategories
     }
     
-    // MARK: - Getting Background Image
+    /// Fetches background image URL for a show
+    /// - Parameter idString: The show ID
+    /// - Returns: URL string of the background image
+    /// - Throws: DataError if no background image is found
     func getBackgroundImage(idString: String) async throws -> String {
-        // Call the function to get images
         let images = try await getImages(idString: idString)
         
-        // Check if the array is empty
         guard !images.isEmpty else {
             throw DataError.isEmpty
         }
         
-        // Find the first image with type "background"
-        if let backgroundImage = images.first(where: { $0.type == "background" }) {
-            return backgroundImage.resolutions.original.url
+        guard let backgroundImage = images.first(where: { $0.type == "background" }) else {
+            throw DataError.imageBackgroundEmpty
         }
         
-        // Throw an error if no background image was found
-        throw DataError.imageBackgroundEmpty
+        return backgroundImage.resolutions.original.url
     }
     
-    // MARK: - Get and Decode Show
+    /// Fetches and decodes a single show
+    /// - Parameter idString: The show ID
+    /// - Returns: Decoded Show object
+    /// - Throws: DataError.decodingError or APIError
     func getShow(idString: String) async throws -> Show {
-        // Call the API to get the show data
-        let data = try await APIController.sharedInstance.getShowAPI(idString: idString)
+        let data = try await APIController.shared.getShow(idString: idString)
+        
         do {
-            // Decode the JSON data into a ShowModel object
-            let showModel = try JSONDecoder().decode(Show.self, from: data)
-            return showModel
+            return try JSONDecoder().decode(Show.self, from: data)
         } catch {
-            // Handle JSON decoding error
+            print("Show decoding error: \(error)")
             throw DataError.decodingError
         }
     }
     
-    // MARK: - Get and Decode Images
-    func getImages(idString:String) async throws -> [Image]
-    {
-        // Call the API to get the images data
-        let data = try await APIController.sharedInstance.getImagesAPI(idString: idString)
+    /// Fetches and decodes images for a show
+    /// - Parameter idString: The show ID
+    /// - Returns: Array of decoded Image objects
+    /// - Throws: DataError.decodingError or APIError
+    func getImages(idString: String) async throws -> [Image] {
+        let data = try await APIController.shared.getImages(idString: idString)
+        
         do {
-            // Decode the JSON data into a Image object
-            let imageModel = try JSONDecoder().decode([Image].self, from: data)
-            return imageModel
+            return try JSONDecoder().decode([Image].self, from: data)
         } catch {
-            // Handle JSON decoding error
+            print("Images decoding error: \(error)")
             throw DataError.decodingError
         }
     }
     
-    // MARK: - Get and Decode Search
-    func getSearch(searchString:String) async throws -> [ShowSearchResult]
-    {
-        // Call the API to get the search data
-        let data = try await APIController.sharedInstance.getSearchAPI(searchString: searchString)
+    /// Searches for shows and decodes results
+    /// - Parameter searchString: The search query
+    /// - Returns: Array of search results
+    /// - Throws: DataError.decodingError or APIError
+    func getSearch(searchString: String) async throws -> [ShowSearchResult] {
+        let data = try await APIController.shared.getSearch(searchString: searchString)
+        
         do {
-            // Decode the JSON data into a ShowSearchResult object
-            let ShowSearchResult = try JSONDecoder().decode([ShowSearchResult].self, from: data)
-            return ShowSearchResult
+            return try JSONDecoder().decode([ShowSearchResult].self, from: data)
         } catch {
-            // Handle JSON decoding error
-            print("Error decoding JSON: \(error)")
+            print("Search decoding error: \(error)")
             throw DataError.decodingError
         }
     }
     
-    // MARK: - Remove words from string
-    func removeWords(from sentenceString: String, completion: @escaping (String) -> Void){
-        var sentence = sentenceString
-        for wordToRemove in wordsToRemove {
-            while let range = sentence.range(of: wordToRemove) {
-                sentence.removeSubrange(range)
-                completion(sentence)
-            }
+    /// Removes HTML tags from a string
+    /// - Parameters:
+    ///   - sentenceString: The string to clean
+    ///   - completion: Completion handler with cleaned string
+    func removeHTMLTags(from sentenceString: String, completion: @escaping (String) -> Void) {
+        var cleanedString = sentenceString
+        
+        for tag in wordsToRemove {
+            cleanedString = cleanedString.replacingOccurrences(of: tag, with: "")
         }
+        
+        completion(cleanedString)
     }
     
-    // MARK: - Update Watchlist
+    // MARK: - Watchlist Management
+    
+    /// Updates the watchlist by adding or removing a show
+    /// - Parameter showID: The ID of the show to toggle
     func updateWatchlist(showID: String) {
         if watchlistedShows.showIDs.contains(showID) {
-            watchlistedShows.showIDs.removeAll { $0 == showID}
+            watchlistedShows.showIDs.removeAll { $0 == showID }
         } else {
             watchlistedShows.showIDs.append(showID)
         }
-        saveWatchlist(items: watchlistedShows)
+        saveWatchlist()
     }
     
-    // MARK: - Save Watchlist
-    func saveWatchlist(items: ShowCategory) {
-        if let encoded = try? JSONEncoder().encode(items) {
+    /// Saves the current watchlist to UserDefaults
+    private func saveWatchlist() {
+        do {
+            let encoded = try JSONEncoder().encode(watchlistedShows)
             UserDefaults.standard.set(encoded, forKey: "savedWatchlist")
+        } catch {
+            print("Failed to save watchlist: \(error)")
         }
     }
     
-    // MARK: - Load Watchlist
+    /// Loads the watchlist from UserDefaults
     func loadWatchlist() {
-        if let savedData = UserDefaults.standard.data(forKey: "savedWatchlist"),
-           let decodedItems = try? JSONDecoder().decode(ShowCategory.self, from: savedData) {
-            watchlistedShows = decodedItems
+        guard let savedData = UserDefaults.standard.data(forKey: "savedWatchlist") else {
+            return
+        }
+        
+        do {
+            watchlistedShows = try JSONDecoder().decode(ShowCategory.self, from: savedData)
+        } catch {
+            print("Failed to load watchlist: \(error)")
         }
     }
 }

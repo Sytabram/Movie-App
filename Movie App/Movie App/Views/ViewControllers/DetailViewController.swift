@@ -12,25 +12,45 @@ import SafariServices
 
 class DetailViewController: UIViewController {
     
+    // MARK: - Constants
+    
+    enum UIConstants {
+        static let posterCornerRadius: CGFloat = 25
+        static let namesFontSize: CGFloat = 24
+        static let ratingFontSize: CGFloat = 18
+        static let tableViewCornerRadius: CGFloat = 10
+        static let tableViewBorderWidth: CGFloat = 1
+        static let summaryMaxLength: Int = 150
+    }
+    
+    enum AnimationConstants {
+        static let toastDuration: TimeInterval = 1.5
+        static let fadeAnimationDuration: TimeInterval = 0.3
+        static let checkmarkAnimationDuration: TimeInterval = 0.5
+        static let pulseAnimationDuration: TimeInterval = 0.3
+        static let toastSize: CGFloat = 120
+        static let checkmarkSize: CGFloat = 70
+    }
+    
     // MARK: - Properties
     
-    var detailShowModel: ShowItem?
-    private var showsIDString: String = ""
+    var showItem: ShowItem?
+    private var showIDString: String = ""
     private var detailsArray: [DetailInfo] = []
     private var processedSummary: String?
     private var isProcessingSummary = false
     
     // MARK: - IBOutlets
     
-    @IBOutlet weak var backgroundImageView: UIImageView!
-    @IBOutlet weak var posterImageView: UIImageView!
-    @IBOutlet weak var ratingImageView: UIImageView!
-    @IBOutlet weak var nameLabel: UILabel!
-    @IBOutlet weak var ratingLabel: UILabel!
-    @IBOutlet weak var addButton: UIButton!
-    @IBOutlet weak var infoTableView: UITableView!
+    @IBOutlet private weak var backgroundImageView: UIImageView!
+    @IBOutlet private weak var posterImageView: UIImageView!
+    @IBOutlet private weak var ratingImageView: UIImageView!
+    @IBOutlet private weak var nameLabel: UILabel!
+    @IBOutlet private weak var ratingLabel: UILabel!
+    @IBOutlet private weak var addButton: UIButton!
+    @IBOutlet private weak var infoTableView: UITableView!
     
-    // MARK: - Lifecycle Methods
+    // MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -48,79 +68,86 @@ class DetailViewController: UIViewController {
     // MARK: - Setup Methods
     
     private func setupUI() {
-        // Configure poster image view
-        posterImageView.layer.cornerRadius = 25
+        setupPosterImageView()
+        setupLabels()
+        setupRatingImageView()
+        setupBackgroundImageView()
+    }
+    
+    private func setupPosterImageView() {
+        posterImageView.layer.cornerRadius = UIConstants.posterCornerRadius
         posterImageView.clipsToBounds = true
         posterImageView.layer.zPosition = 1
-        
-        // Configure labels
-        nameLabel.font = UIFont.systemFont(ofSize: 24, weight: .bold)
+    }
+    
+    private func setupLabels() {
+        nameLabel.font = UIFont.systemFont(ofSize: UIConstants.namesFontSize, weight: .bold)
         nameLabel.layer.zPosition = 1
-        ratingLabel.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
-        
-        // Configure rating image
+        ratingLabel.font = UIFont.systemFont(ofSize: UIConstants.ratingFontSize, weight: .semibold)
+    }
+    
+    private func setupRatingImageView() {
         ratingImageView.tintColor = UIColor.systemYellow
         ratingImageView.image = UIImage(systemName: "star.fill")
-        
-        // Configure background image
+    }
+    
+    private func setupBackgroundImageView() {
         backgroundImageView.contentMode = .scaleToFill
     }
     
     private func setupTableView() {
         infoTableView.delegate = self
         infoTableView.dataSource = self
+        registerTableViewCells()
+        configureTableViewAppearance()
+    }
+    
+    private func registerTableViewCells() {
         infoTableView.register(UITableViewCell.self, forCellReuseIdentifier: "DetailCell")
         infoTableView.register(SectionDetailHeaderView.self, forHeaderFooterViewReuseIdentifier: "HeaderView")
-        
-        // Configure appearance
+    }
+    
+    private func configureTableViewAppearance() {
         infoTableView.backgroundColor = .darkGrayBackground
         infoTableView.separatorStyle = .singleLine
         infoTableView.separatorInset = UIEdgeInsets.zero
         infoTableView.separatorColor = UIColor.black
         infoTableView.showsVerticalScrollIndicator = false
-        
-        // Configure layout
         infoTableView.contentInset = .zero
         infoTableView.contentInsetAdjustmentBehavior = .never
         infoTableView.sectionHeaderTopPadding = 0
-        
-        // Configure border
         infoTableView.clipsToBounds = true
-        infoTableView.layer.cornerRadius = 10
-        infoTableView.layer.borderWidth = 1
+        infoTableView.layer.cornerRadius = UIConstants.tableViewCornerRadius
+        infoTableView.layer.borderWidth = UIConstants.tableViewBorderWidth
         infoTableView.layer.borderColor = UIColor.black.cgColor
     }
     
-    // MARK: - Data Loading Methods
+    // MARK: - Data Loading
     
     private func loadData() {
-        guard let detailShowModel = detailShowModel else { return }
+        guard let showItem = showItem else { return }
         
-        showsIDString = detailShowModel.id.codingKey.stringValue
-        
-        // Configure watchlist button
+        showIDString = showItem.id.codingKey.stringValue
         updateWatchlistButton()
-        
-        // Configure name label
-        nameLabel.text = detailShowModel.name
-        nameLabel.numberOfLines = 2
-        nameLabel.lineBreakMode = .byTruncatingTail
-        
-        // Configure rating
+        setupNameLabel(with: showItem.name)
         setupRatingDisplay()
-        
-        // Load images asynchronously
         loadImages()
     }
     
+    private func setupNameLabel(with name: String) {
+        nameLabel.text = name
+        nameLabel.numberOfLines = 2
+        nameLabel.lineBreakMode = .byTruncatingTail
+    }
+    
     private func updateWatchlistButton() {
-        let isWatchlisted = DataController.shared.watchlistedShows.showIDs.contains(showsIDString)
+        let isWatchlisted = DataController.shared.watchlistedShows.showIDs.contains(showIDString)
         let imageName = isWatchlisted ? "checkmark.square.fill" : "plus.app"
         addButton.setImage(UIImage(systemName: imageName), for: .normal)
     }
     
     private func setupRatingDisplay() {
-        if let averageRating = detailShowModel?.rating {
+        if let averageRating = showItem?.rating {
             ratingLabel.text = "\(averageRating)"
             ratingLabel.isHidden = false
             ratingImageView.isHidden = false
@@ -131,25 +158,24 @@ class DetailViewController: UIViewController {
     }
     
     private func loadImages() {
-        guard let detailShowModel = detailShowModel else { return }
+        guard let showItem = showItem else { return }
         
         Task {
             do {
                 // Load poster image
-                let posterImage = await APIController.shared.loadImage(from: detailShowModel.imageUrl)
+                let posterImage = await APIController.shared.loadImage(from: showItem.imageUrl)
                 
                 // Load background image
-                let backgroundURLString = try await DataController.shared.getBackgroundImage(idString: String(detailShowModel.id))
+                let backgroundURLString = try await DataController.shared.getBackgroundImage(idString: String(showItem.id))
                 let backgroundImage = await APIController.shared.loadImage(from: backgroundURLString)
                 
-                DispatchQueue.main.async {
+                await MainActor.run {
                     self.posterImageView.image = posterImage
                     self.backgroundImageView.image = backgroundImage
                 }
                 
             } catch {
-                // Handle failure with default image
-                DispatchQueue.main.async {
+                await MainActor.run {
                     self.posterImageView.image = APIController.shared.defaultImage
                     self.posterImageView.contentMode = .center
                 }
@@ -157,66 +183,63 @@ class DetailViewController: UIViewController {
         }
     }
     
+    // MARK: - Details Array Preparation
+    
     private func prepareDetailsArray() {
         detailsArray = []
-        guard let detailShowModel = detailShowModel else { return }
+        guard let showItem = showItem else { return }
         
-        // Release date
-        if let premiered = detailShowModel.premiered, !premiered.isEmpty {
-            detailsArray.append(DetailInfo(key: NSLocalizedString("detailReleaseDate", comment: ""), value: formatDate(premiered), link: false))
+        addDetailIfPresent(key: NSLocalizedString("detailReleaseDate", comment: ""),
+                          value: showItem.premiered?.isEmpty == false ? formatDate(showItem.premiered!) : nil)
+        
+        addDetailIfPresent(key: NSLocalizedString("detailGenres", comment: ""),
+                          value: showItem.genres?.isEmpty == false ? showItem.genres!.joined(separator: ", ") : nil)
+        
+        addDetailIfPresent(key: NSLocalizedString("detailNetwork", comment: ""),
+                          value: showItem.network?.isEmpty == false ? showItem.network : nil)
+        
+        addDetailIfPresent(key: NSLocalizedString("detailStatus", comment: ""),
+                          value: showItem.status?.isEmpty == false ? showItem.status : nil)
+        
+        if let runtime = showItem.runtime, runtime > 0 {
+            detailsArray.append(DetailInfo(key: NSLocalizedString("detailRuntime", comment: ""),
+                                         value: "\(runtime) minutes",
+                                         link: false))
         }
         
-        // Genres
-        if let genres = detailShowModel.genres, !genres.isEmpty {
-            detailsArray.append(DetailInfo(key: NSLocalizedString("detailGenres", comment: ""), value: genres.joined(separator: ", "), link: false))
+        addDetailIfPresent(key: NSLocalizedString("detailEnded", comment: ""),
+                          value: showItem.ended?.isEmpty == false ? formatDate(showItem.ended!) : nil)
+        
+        if let officialSite = showItem.officialSite, !officialSite.isEmpty {
+            detailsArray.append(DetailInfo(key: NSLocalizedString("detailOfficialSite", comment: ""),
+                                         value: officialSite,
+                                         link: true))
         }
         
-        // Network
-        if let networkName = detailShowModel.network, !networkName.isEmpty {
-            detailsArray.append(DetailInfo(key: NSLocalizedString("detailNetwork", comment: ""), value: networkName, link: false))
-        }
-        
-        // Status
-        if let status = detailShowModel.status, !status.isEmpty {
-            detailsArray.append(DetailInfo(key: NSLocalizedString("detailStatus", comment: ""), value: status, link: false))
-        }
-        
-        // Runtime
-        if let runtime = detailShowModel.runtime, runtime > 0 {
-            detailsArray.append(DetailInfo(key: NSLocalizedString("detailRuntime", comment: ""), value: "\(runtime) minutes", link: false))
-        }
-        
-        // End date
-        if let ended = detailShowModel.ended, !ended.isEmpty {
-            detailsArray.append(DetailInfo(key: NSLocalizedString("detailEnded", comment: ""), value: formatDate(ended), link: false))
-        }
-        
-        // Official site
-        if let officialSite = detailShowModel.officialSite, !officialSite.isEmpty {
-            detailsArray.append(DetailInfo(key: NSLocalizedString("detailOfficialSite", comment: ""), value: officialSite, link: true))
-        }
-        
-        // IMDB
-        if let imdb = detailShowModel.imdb, !imdb.isEmpty {
-            detailsArray.append(DetailInfo(key: NSLocalizedString("detailIMDB", comment: ""), value: imdb, link: false))
-        }
+        addDetailIfPresent(key: NSLocalizedString("detailIMDB", comment: ""),
+                          value: showItem.imdb?.isEmpty == false ? showItem.imdb : nil)
     }
     
-    // MARK: - Summary Processing Methods
+    private func addDetailIfPresent(key: String, value: String?) {
+        guard let value = value else { return }
+        detailsArray.append(DetailInfo(key: key, value: value, link: false))
+    }
+    
+    // MARK: - Summary Processing
     
     private func preprocessSummary() {
-        guard let summary = detailShowModel?.summary, !summary.isEmpty else { return }
+        guard let summary = showItem?.summary, !summary.isEmpty else { return }
         
         isProcessingSummary = true
-        let truncated = truncateText(summary, maxLength: 150)
+        let truncated = truncateText(summary, maxLength: UIConstants.summaryMaxLength)
         processedSummary = truncated.text
         
         DataController.shared.removeHTMLTags(from: summary) { [weak self] modifiedSummary in
-            DispatchQueue.main.async {
+            Task { @MainActor in
                 self?.processedSummary = modifiedSummary
                 self?.isProcessingSummary = false
                 
-                if let summarySection = self?.getSectionIndex(for: .summary) {
+                if let summarySection = DetailViewController.SectionManager.getSectionIndex(for: .summary, in: self?.showItem) {
                     self?.infoTableView.reloadSections(IndexSet(integer: summarySection), with: .none)
                 }
             }
@@ -234,58 +257,6 @@ class DetailViewController: UIViewController {
     
     // MARK: - Helper Methods
     
-    private func getSectionIndex(for sectionType: InfoSection) -> Int? {
-        var currentIndex = 0
-        
-        if let summary = detailShowModel?.summary, !summary.isEmpty {
-            if sectionType == .summary {
-                return currentIndex
-            }
-            currentIndex += 1
-        }
-        
-        if !detailsArray.isEmpty {
-            if sectionType == .details {
-                return currentIndex
-            }
-            currentIndex += 1
-        }
-        
-        if let scheduleDays = detailShowModel?.scheduleDays, !scheduleDays.isEmpty {
-            if sectionType == .schedule {
-                return currentIndex
-            }
-        }
-        
-        return nil
-    }
-    
-    private func getSectionType(for index: Int) -> InfoSection? {
-        var currentIndex = 0
-        
-        if let summary = detailShowModel?.summary, !summary.isEmpty {
-            if currentIndex == index {
-                return .summary
-            }
-            currentIndex += 1
-        }
-        
-        if !detailsArray.isEmpty {
-            if currentIndex == index {
-                return .details
-            }
-            currentIndex += 1
-        }
-        
-        if let scheduleDays = detailShowModel?.scheduleDays, !scheduleDays.isEmpty {
-            if currentIndex == index {
-                return .schedule
-            }
-        }
-        
-        return nil
-    }
-    
     private func formatDate(_ dateString: String) -> String {
         let inputFormatter = DateFormatter()
         inputFormatter.dateFormat = "yyyy-MM-dd"
@@ -298,9 +269,100 @@ class DetailViewController: UIViewController {
         return dateString
     }
     
-    // MARK: - Cell Creation Methods
+    // MARK: - IBActions
     
-    private func createSummaryCell(at indexPath: IndexPath) -> UITableViewCell {
+    @IBAction private func addToWatchlist(_ sender: UILongPressGestureRecognizer) {
+        DataController.shared.updateWatchlist(showID: showIDString)
+        updateWatchlistButton()
+        
+        if DataController.shared.watchlistedShows.showIDs.contains(showIDString) {
+            showAnimatedCheckmarkToast()
+        }
+    }
+}
+
+// MARK: - Section Management
+
+private extension DetailViewController {
+    
+    struct SectionManager {
+        
+        static func getSectionIndex(for sectionType: InfoSection, in showItem: ShowItem?) -> Int? {
+            var currentIndex = 0
+            
+            if let summary = showItem?.summary, !summary.isEmpty {
+                if sectionType == .summary {
+                    return currentIndex
+                }
+                currentIndex += 1
+            }
+            
+            if hasDetailsSection(in: showItem) {
+                if sectionType == .details {
+                    return currentIndex
+                }
+                currentIndex += 1
+            }
+            
+            if let scheduleDays = showItem?.scheduleDays, !scheduleDays.isEmpty {
+                if sectionType == .schedule {
+                    return currentIndex
+                }
+            }
+            
+            return nil
+        }
+        
+        static func getSectionType(for index: Int, in showItem: ShowItem?) -> InfoSection? {
+            var currentIndex = 0
+            
+            if let summary = showItem?.summary, !summary.isEmpty {
+                if currentIndex == index {
+                    return .summary
+                }
+                currentIndex += 1
+            }
+            
+            if hasDetailsSection(in: showItem) {
+                if currentIndex == index {
+                    return .details
+                }
+                currentIndex += 1
+            }
+            
+            if let scheduleDays = showItem?.scheduleDays, !scheduleDays.isEmpty {
+                if currentIndex == index {
+                    return .schedule
+                }
+            }
+            
+            return nil
+        }
+        
+        private static func hasDetailsSection(in showItem: ShowItem?) -> Bool {
+                    guard let showItem = showItem else { return false }
+                    
+                    // Check if any detail information is available
+                    let hasPremiered = showItem.premiered?.isEmpty == false
+                    let hasGenres = showItem.genres?.isEmpty == false
+                    let hasNetwork = showItem.network?.isEmpty == false
+                    let hasStatus = showItem.status?.isEmpty == false
+                    let hasRuntime = showItem.runtime != nil && showItem.runtime! > 0
+                    let hasEnded = showItem.ended?.isEmpty == false
+                    let hasOfficialSite = showItem.officialSite?.isEmpty == false
+                    let hasIMDB = showItem.imdb?.isEmpty == false
+                    
+                    return hasPremiered || hasGenres || hasNetwork || hasStatus ||
+                           hasRuntime || hasEnded || hasOfficialSite || hasIMDB
+        }
+    }
+}
+
+// MARK: - Cell Creation
+
+private extension DetailViewController {
+    
+    func createSummaryCell(at indexPath: IndexPath) -> UITableViewCell {
         let cell = infoTableView.dequeueReusableCell(withIdentifier: "DetailCell", for: indexPath)
         cell.backgroundColor = .cellBackground
         cell.selectionStyle = .none
@@ -308,7 +370,7 @@ class DetailViewController: UIViewController {
         var content = cell.defaultContentConfiguration()
         
         if let processedSummary = processedSummary {
-            let truncated = truncateText(processedSummary, maxLength: 150)
+            let truncated = truncateText(processedSummary, maxLength: UIConstants.summaryMaxLength)
             content.text = truncated.text
             
             if truncated.isTruncated {
@@ -318,11 +380,11 @@ class DetailViewController: UIViewController {
                 cell.accessoryView = nil
             }
         } else {
-            let truncated = truncateText(detailShowModel?.summary ?? "", maxLength: 150)
+            let truncated = truncateText(showItem?.summary ?? "", maxLength: UIConstants.summaryMaxLength)
             content.text = truncated.text
             
             if truncated.isTruncated {
-                let readMoreButton = createReadMoreButton(fullText: detailShowModel?.summary ?? "")
+                let readMoreButton = createReadMoreButton(fullText: showItem?.summary ?? "")
                 cell.accessoryView = readMoreButton
             } else {
                 cell.accessoryView = nil
@@ -337,14 +399,13 @@ class DetailViewController: UIViewController {
         return cell
     }
     
-    private func createDetailCell(at indexPath: IndexPath) -> UITableViewCell {
+    func createDetailCell(at indexPath: IndexPath) -> UITableViewCell {
         guard indexPath.row < detailsArray.count else {
             return infoTableView.dequeueReusableCell(withIdentifier: "DetailCell", for: indexPath)
         }
         
         let detailInfo = detailsArray[indexPath.row]
         
-        // Special handling for official site links
         if detailInfo.link {
             return createLinkCell(with: detailInfo.value, title: detailInfo.key, at: indexPath)
         }
@@ -370,7 +431,7 @@ class DetailViewController: UIViewController {
         return cell
     }
     
-    private func createScheduleCell(at indexPath: IndexPath) -> UITableViewCell {
+    func createScheduleCell(at indexPath: IndexPath) -> UITableViewCell {
         let cell = infoTableView.dequeueReusableCell(withIdentifier: "DetailCell", for: indexPath)
         cell.backgroundColor = .cellBackground
         cell.selectionStyle = .none
@@ -379,13 +440,13 @@ class DetailViewController: UIViewController {
         
         var content = cell.defaultContentConfiguration()
         
-        if let days = detailShowModel?.scheduleDays, indexPath.row < days.count {
+        if let days = showItem?.scheduleDays, indexPath.row < days.count {
             content.text = NSLocalizedString("detailSchedule", comment: "")
             content.textProperties.font = UIFont.systemFont(ofSize: 12, weight: .medium)
             content.textProperties.color = .lightGrayText
             
             var scheduleText = days[indexPath.row]
-            if let time = detailShowModel?.scheduleTime, !time.isEmpty {
+            if let time = showItem?.scheduleTime, !time.isEmpty {
                 scheduleText += " at \(time)"
             }
             
@@ -399,12 +460,11 @@ class DetailViewController: UIViewController {
         return cell
     }
     
-    private func createLinkCell(with url: String, title: String, at indexPath: IndexPath) -> UITableViewCell {
+    func createLinkCell(with url: String, title: String, at indexPath: IndexPath) -> UITableViewCell {
         let cell = infoTableView.dequeueReusableCell(withIdentifier: "DetailCell", for: indexPath)
         
         cell.accessoryView = nil
         cell.accessoryType = .none
-        
         cell.backgroundColor = .cellBackground
         cell.selectionStyle = .default
         cell.accessoryType = .disclosureIndicator
@@ -423,10 +483,13 @@ class DetailViewController: UIViewController {
         cell.contentConfiguration = content
         return cell
     }
+}
+
+// MARK: - Read More Functionality
+
+private extension DetailViewController {
     
-    // MARK: - Read More Functionality
-    
-    private func createReadMoreButton(fullText: String) -> UIButton {
+    func createReadMoreButton(fullText: String) -> UIButton {
         let button = UIButton(type: .system)
         button.setTitle(NSLocalizedString("detailReadMore", comment: ""), for: .normal)
         button.setTitleColor(.systemBlue, for: .normal)
@@ -437,12 +500,12 @@ class DetailViewController: UIViewController {
         return button
     }
     
-    @objc private func showFullSummaryPopup(_ sender: UIButton) {
+    @objc func showFullSummaryPopup(_ sender: UIButton) {
         guard let fullText = sender.accessibilityHint else { return }
         showSimpleSummaryViewController(with: fullText)
     }
     
-    private func showSimpleSummaryViewController(with text: String) {
+    func showSimpleSummaryViewController(with text: String) {
         let summaryViewController = UIViewController()
         summaryViewController.view.backgroundColor = UIColor.systemBackground
         summaryViewController.title = NSLocalizedString("titleFullSummary", comment: "")
@@ -455,7 +518,6 @@ class DetailViewController: UIViewController {
             action: #selector(dismissSummaryViewController)
         )
         
-        // Create scroll view and text label
         let scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.showsVerticalScrollIndicator = true
@@ -471,7 +533,6 @@ class DetailViewController: UIViewController {
         summaryViewController.view.addSubview(scrollView)
         scrollView.addSubview(textLabel)
         
-        // Setup constraints
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: summaryViewController.view.safeAreaLayoutGuide.topAnchor),
             scrollView.leadingAnchor.constraint(equalTo: summaryViewController.view.leadingAnchor, constant: 20),
@@ -489,13 +550,16 @@ class DetailViewController: UIViewController {
         present(navController, animated: true)
     }
     
-    @objc private func dismissSummaryViewController() {
+    @objc func dismissSummaryViewController() {
         dismiss(animated: true)
     }
+}
+
+// MARK: - URL Handling
+
+private extension DetailViewController {
     
-    // MARK: - URL Handling
-    
-    private func openURL(_ urlString: String) {
+    func openURL(_ urlString: String) {
         var finalURLString = urlString
         
         if !urlString.hasPrefix("http://") && !urlString.hasPrefix("https://") {
@@ -508,17 +572,6 @@ class DetailViewController: UIViewController {
         safariVC.preferredControlTintColor = .systemBlue
         present(safariVC, animated: true)
     }
-    
-    // MARK: - IBActions
-    
-    @IBAction func addToWatchlist(_ sender: UILongPressGestureRecognizer) {
-        DataController.shared.updateWatchlist(showID: showsIDString)
-        updateWatchlistButton()
-        
-        if DataController.shared.watchlistedShows.showIDs.contains(showsIDString) {
-            showAnimatedCheckmarkToast()
-        }
-    }
 }
 
 // MARK: - TableView DataSource & Delegate
@@ -528,7 +581,7 @@ extension DetailViewController: UITableViewDataSource, UITableViewDelegate {
     func numberOfSections(in tableView: UITableView) -> Int {
         var count = 0
         
-        if let summary = detailShowModel?.summary, !summary.isEmpty {
+        if let summary = showItem?.summary, !summary.isEmpty {
             count += 1
         }
         
@@ -536,7 +589,7 @@ extension DetailViewController: UITableViewDataSource, UITableViewDelegate {
             count += 1
         }
         
-        if let scheduleDays = detailShowModel?.scheduleDays, !scheduleDays.isEmpty {
+        if let scheduleDays = showItem?.scheduleDays, !scheduleDays.isEmpty {
             count += 1
         }
         
@@ -544,7 +597,7 @@ extension DetailViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        guard let infoSection = getSectionType(for: section) else { return 0 }
+        guard let infoSection = SectionManager.getSectionType(for: section, in: showItem) else { return 0 }
         
         switch infoSection {
         case .summary:
@@ -552,12 +605,12 @@ extension DetailViewController: UITableViewDataSource, UITableViewDelegate {
         case .details:
             return detailsArray.count
         case .schedule:
-            return detailShowModel?.scheduleDays.count ?? 0
+            return showItem?.scheduleDays.count ?? 0
         }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let infoSection = getSectionType(for: indexPath.section) else {
+        guard let infoSection = SectionManager.getSectionType(for: indexPath.section, in: showItem) else {
             return tableView.dequeueReusableCell(withIdentifier: "DetailCell", for: indexPath)
         }
         
@@ -574,7 +627,7 @@ extension DetailViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         
-        guard let infoSection = getSectionType(for: indexPath.section) else { return }
+        guard let infoSection = SectionManager.getSectionType(for: indexPath.section, in: showItem) else { return }
         
         if infoSection == .details && indexPath.row < detailsArray.count {
             let detailInfo = detailsArray[indexPath.row]
@@ -587,7 +640,7 @@ extension DetailViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         guard let headerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: "HeaderView") as? SectionDetailHeaderView,
-              let infoSection = getSectionType(for: section) else { return nil }
+              let infoSection = SectionManager.getSectionType(for: section, in: showItem) else { return nil }
         
         headerView.configure(with: infoSection.title)
         return headerView
@@ -606,7 +659,7 @@ extension DetailViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        guard let infoSection = getSectionType(for: indexPath.section) else { return 44 }
+        guard let infoSection = SectionManager.getSectionType(for: indexPath.section, in: showItem) else { return 44 }
         
         switch infoSection {
         case .summary:
@@ -621,39 +674,51 @@ extension DetailViewController: UITableViewDataSource, UITableViewDelegate {
 
 extension DetailViewController {
     
-    func showAnimatedCheckmarkToast(duration: TimeInterval = 1.5) {
-        // Create toast container
-        let toastContainer = UIView()
-        toastContainer.layer.zPosition = 1
-        toastContainer.backgroundColor = UIColor.black.withAlphaComponent(0.7)
-        toastContainer.layer.cornerRadius = 30
-        toastContainer.translatesAutoresizingMaskIntoConstraints = false
-        
-        // Create checkmark view
-        let checkmarkView = CheckmarkView(frame: .zero)
-        checkmarkView.translatesAutoresizingMaskIntoConstraints = false
+    func showAnimatedCheckmarkToast(duration: TimeInterval = AnimationConstants.toastDuration) {
+        let toastContainer = createToastContainer()
+        let checkmarkView = createCheckmarkView()
         
         toastContainer.addSubview(checkmarkView)
         view.addSubview(toastContainer)
         
-        // Setup constraints
+        setupToastConstraints(toastContainer: toastContainer, checkmarkView: checkmarkView)
+        animateToastAppearance(toastContainer, checkmarkView: checkmarkView, duration: duration)
+    }
+    
+    private func createToastContainer() -> UIView {
+        let container = UIView()
+        container.layer.zPosition = 1
+        container.backgroundColor = UIColor.black.withAlphaComponent(0.7)
+        container.layer.cornerRadius = 30
+        container.translatesAutoresizingMaskIntoConstraints = false
+        return container
+    }
+    
+    private func createCheckmarkView() -> CheckmarkView {
+        let checkmarkView = CheckmarkView(frame: .zero)
+        checkmarkView.translatesAutoresizingMaskIntoConstraints = false
+        return checkmarkView
+    }
+    
+    private func setupToastConstraints(toastContainer: UIView, checkmarkView: CheckmarkView) {
         NSLayoutConstraint.activate([
             toastContainer.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             toastContainer.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            toastContainer.widthAnchor.constraint(equalToConstant: 120),
-            toastContainer.heightAnchor.constraint(equalToConstant: 120),
+            toastContainer.widthAnchor.constraint(equalToConstant: AnimationConstants.toastSize),
+            toastContainer.heightAnchor.constraint(equalToConstant: AnimationConstants.toastSize),
             
             checkmarkView.centerXAnchor.constraint(equalTo: toastContainer.centerXAnchor),
             checkmarkView.centerYAnchor.constraint(equalTo: toastContainer.centerYAnchor),
-            checkmarkView.widthAnchor.constraint(equalToConstant: 70),
-            checkmarkView.heightAnchor.constraint(equalToConstant: 70)
+            checkmarkView.widthAnchor.constraint(equalToConstant: AnimationConstants.checkmarkSize),
+            checkmarkView.heightAnchor.constraint(equalToConstant: AnimationConstants.checkmarkSize)
         ])
-        
-        // Animate appearance
+    }
+    
+    private func animateToastAppearance(_ toastContainer: UIView, checkmarkView: CheckmarkView, duration: TimeInterval) {
         toastContainer.alpha = 0
         toastContainer.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
         
-        UIView.animate(withDuration: 0.3, animations: {
+        UIView.animate(withDuration: AnimationConstants.fadeAnimationDuration, animations: {
             toastContainer.alpha = 1
             toastContainer.transform = CGAffineTransform.identity
         }) { _ in
@@ -663,8 +728,7 @@ extension DetailViewController {
                 self.generateHapticFeedback(style: .heavy)
             })
             
-            // Fade out animation
-            UIView.animate(withDuration: 0.3, delay: duration, options: [], animations: {
+            UIView.animate(withDuration: AnimationConstants.fadeAnimationDuration, delay: duration, options: [], animations: {
                 toastContainer.alpha = 0
                 toastContainer.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
             }) { _ in
@@ -680,7 +744,7 @@ extension DetailViewController {
     }
 }
 
-// MARK: - Supporting Types and Classes
+// MARK: - Supporting Types
 
 enum InfoSection: Int, CaseIterable {
     case summary = 0
@@ -705,98 +769,6 @@ struct DetailInfo {
 private struct TruncatedText {
     let text: String
     let isTruncated: Bool
-}
-
-// MARK: - CheckmarkView
-
-class CheckmarkView: UIView {
-    
-    private let checkmarkLayer = CAShapeLayer()
-    
-    // MARK: - Initializers
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        setup()
-    }
-    
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        setup()
-    }
-    
-    // MARK: - Setup
-    
-    private func setup() {
-        checkmarkLayer.fillColor = nil
-        checkmarkLayer.strokeColor = UIColor.white.cgColor
-        checkmarkLayer.lineWidth = 5
-        checkmarkLayer.lineCap = .round
-        checkmarkLayer.lineJoin = .round
-        checkmarkLayer.strokeEnd = 0
-        
-        layer.addSublayer(checkmarkLayer)
-        updatePath()
-    }
-    
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        updatePath()
-    }
-    
-    private func updatePath() {
-        let path = UIBezierPath()
-        path.move(to: CGPoint(x: bounds.width * 0.25, y: bounds.height * 0.5))
-        path.addLine(to: CGPoint(x: bounds.width * 0.45, y: bounds.height * 0.7))
-        path.addLine(to: CGPoint(x: bounds.width * 0.75, y: bounds.height * 0.3))
-        checkmarkLayer.path = path.cgPath
-    }
-    
-    // MARK: - Animation
-    
-    func animate(completion: (() -> Void)? = nil) {
-        let animation = CABasicAnimation(keyPath: "strokeEnd")
-        animation.duration = 0.5
-        animation.fromValue = 0
-        animation.toValue = 1
-        animation.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
-        animation.isRemovedOnCompletion = false
-        animation.fillMode = .forwards
-        
-        let animationDelegate = CheckmarkAnimationDelegate {
-            let pulseAnimation = CAKeyframeAnimation(keyPath: "transform.scale")
-            pulseAnimation.values = [1.0, 1.2, 1.0]
-            pulseAnimation.keyTimes = [0, 0.5, 1]
-            pulseAnimation.duration = 0.3
-            
-            self.layer.add(pulseAnimation, forKey: "pulseAnimation")
-            completion?()
-        }
-        
-        animation.delegate = animationDelegate
-        objc_setAssociatedObject(checkmarkLayer, UnsafeRawPointer(bitPattern: 1)!, animationDelegate, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-        
-        checkmarkLayer.strokeEnd = 1
-        checkmarkLayer.add(animation, forKey: "checkmarkAnimation")
-    }
-}
-
-// MARK: - CheckmarkAnimationDelegate
-
-class CheckmarkAnimationDelegate: NSObject, CAAnimationDelegate {
-    
-    private let completion: () -> Void
-    
-    init(completion: @escaping () -> Void) {
-        self.completion = completion
-        super.init()
-    }
-    
-    func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
-        if flag {
-            completion()
-        }
-    }
 }
 
 // MARK: - UIColor Extensions

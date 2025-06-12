@@ -39,7 +39,7 @@
                     </view>
                     <navigationItem key="navigationItem" id="O2Y-8a-nd9"/>
                     <connections>
-                        <outlet property="homeCollectionView" destination="yDo-4K-5y2" id="LC5-oz-IVP"/>
+                        <outlet property="collectionView" destination="yDo-4K-5y2" id="T3C-mZ-hax"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="5Wv-DP-c07" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>

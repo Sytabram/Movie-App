@@ -2,30 +2,6 @@
 
 A modern iOS application for discovering and tracking TV shows, built with Swift and UIKit. This app demonstrates advanced iOS development skills including modern UI patterns, async networking, and data persistence.
 
-## Features
-
-### 🏠 **Home Screen**
-- **Categorized Content**: Browse shows organized by categories (Watchlist, Recommended, Popular, Horror, Crime, Documentary)
-- **Horizontal Scrolling**: Smooth collection view with compositional layout
-- **Dynamic Sections**: Each category displays as a separate section with custom headers
-
-### 🔍 **Search Functionality**
-- **Real-time Search**: Live search results as you type
-- **Comprehensive Results**: Search across all available TV shows
-- **Instant Navigation**: Tap any result to view detailed information
-
-### 📖 **Detailed Show Information**
-- **Rich Media**: High-quality poster and background images
-- **Comprehensive Data**: Ratings, genres, release dates, network information
-- **Smart Summaries**: HTML-parsed descriptions with "Read More" functionality
-- **External Links**: Direct access to official sites and IMDB pages
-
-### ⭐ **Watchlist Management**
-- **Personal Collection**: Add/remove shows from your personal watchlist
-- **Persistent Storage**: Watchlist data persists between app launches
-- **Visual Feedback**: Animated checkmark confirmation when adding shows
-- **Quick Access**: Watchlist appears as the first category on the home screen
-
 ## Screenshots
 
 <div align="center">
@@ -57,35 +33,6 @@ This app uses the [TVMaze API](https://www.tvmaze.com/api) for show data:
 3. Build and run on simulator or device
 4. No additional setup required
 
-## Technical Highlights
-
-### 🏗️ **Architecture**
-- **MVC Pattern**: Clean separation of concerns
-- **Modular Design**: Each component has a single responsibility
-- **Protocol-Oriented**: Extensible and testable codebase
-
-### 🔄 **Modern iOS Features**
-- **Async/Await**: Modern concurrency for network operations
-- **Diffable Data Sources**: Efficient UI updates with automatic animations
-- **Compositional Layout**: Flexible and responsive collection view layouts
-- **Task Groups**: Concurrent API calls for improved performance
-
-### 🌐 **Networking & Data**
-- **TVMaze API Integration**: Real-time data from TVMaze REST API
-- **Image Caching**: Custom image cache with memory management
-- **Error Handling**: Comprehensive error management with user-friendly messages
-- **JSON Decoding**: Robust Codable implementation for API responses
-
-### 🎨 **User Interface**
-- **Dark Theme**: Modern dark interface with custom colors
-- **Smooth Animations**: Custom animations and transitions
-- **Responsive Design**: Adapts to different screen sizes
-- **Accessibility**: VoiceOver support and semantic markup
-
-### 💾 **Data Persistence**
-- **UserDefaults**: Lightweight storage for watchlist data
-- **Codable Persistence**: Type-safe data serialization
-- **Memory Management**: Efficient image caching with automatic cleanup
 
 ## Code Structure
 
@@ -137,32 +84,3 @@ ShowApp/
 └── Resources/                      
     └── Localizable.strings         # Multi-language support
 ```
-
-## Technical Skills Demonstrated
-
-### Swift & iOS
-- ✅ **Modern Swift**: Async/await, optionals, generics, protocols
-- ✅ **UIKit Mastery**: Collection views, table views, navigation
-- ✅ **Advanced Layouts**: Compositional layout, Auto Layout
-- ✅ **Concurrency**: TaskGroup, MainActor, structured concurrency
-- ✅ **Memory Management**: ARC, weak references, cache management
-
-### Software Architecture
-- ✅ **Design Patterns**: MVC, Singleton, Delegate, Observer
-- ✅ **SOLID Principles**: Single responsibility, dependency inversion
-- ✅ **Error Handling**: Custom error types, graceful degradation
-- ✅ **Data Flow**: Clear separation between models and views
-
-### iOS Frameworks
-- ✅ **Foundation**: URLSession, JSONDecoder, UserDefaults
-- ✅ **UIKit**: Controllers, views, animations, gestures
-- ✅ **SafariServices**: In-app web browsing
-- ✅ **Core Animation**: Custom animations and transitions
-
-
-
----
-
-**Note**: This is a demonstration project showcasing iOS development skills. All show data is provided by the TVMaze API.
-
-*Built by Sytabram🔨 with Swift*
